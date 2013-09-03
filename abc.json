@@ -1,0 +1,14 @@
+{
+    "name": "oui",
+    "version": "0.1",
+    "desc": "",
+    "cover": "",
+    "tag":"ui component",
+    "author": {
+        "name": "goto100",
+        "email": "yiyu.ljw@taobao.com",
+        "page": ""
+    },
+    "type": "kissy-gallery",
+    "type-url": "http://gallery.kissyui.com/guide"
+}
