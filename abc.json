@@ -1,7 +1,7 @@
 {
     "name": "oui",
     "version": "0.1",
-    "desc": "",
+    "desc": "oui 是基于 oop 实现的组件开发库",
     "cover": "",
     "tag":"ui component",
     "author": {
