@@ -63,13 +63,24 @@ var SubEventHandler = new Class(Handler, {
     handleInitialize: function(component) {
         component.meta.subEvents.forEach(function(item) {
             var selector = component.__properties__[item.sub].selector;
-            event.delegate(component.node, item.name, selector, function(event) {
-                if (item.method) {
-                    component[item.method](event);
-                } else if (item.func) {
-                    item.func.call(component, event);
-                }
-            });
+            // can't delegate event
+            if (~['blur', 'valuechange'].indexOf(item.name)) {
+                event.on(selector, item.name, function(event) {
+                    if (item.method) {
+                        component[item.method](event);
+                    } else if (item.func) {
+                        item.func.call(component, event);
+                    }
+                }, component.node);
+            } else {
+                event.delegate(component.node, item.name, selector, function(event) {
+                    if (item.method) {
+                        component[item.method](event);
+                    } else if (item.func) {
+                        item.func.call(component, event);
+                    }
+                });
+            }
         });
     }
 });

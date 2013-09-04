@@ -1,4 +1,4 @@
-KISSY.add(function(S, oop, Handler, data, accessors) {
+KISSY.add(function(S, oop, Handler, data, accessors, options) {
 
 var Class = oop.Class;
 
@@ -21,8 +21,8 @@ var FactoryHandler = new Class(Handler, {
 				cls.__setattr__(name, accessors.define1(member[name].selector, member[name]));
 			});
 		}
-		if (meta.option) {
-			meta.option.forEach(function(name) {
+		if (meta.options) {
+			meta.options.forEach(function(name) {
 				cls.__setattr__(name, options.option(member[name]));
 			});
 		}
@@ -42,6 +42,7 @@ return {
 		'../../oop/index',
 		'../handler',
 		'./data',
-		'./accessors'
+		'./accessors',
+		'./options'
 	]
 });

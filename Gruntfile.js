@@ -27,8 +27,12 @@ module.exports = function(grunt) {
             main: {
                 files: [
                     {
-                        src: "<%= pkg.version %>/index.js",
+                        src: "src/index.js",
                         dest: "<%= pkg.version %>/build/index.js"
+                    },
+                    {
+                        src: "src/schemas/time.js",
+                        dest: "<%= pkg.version %>/build/schemas/time.js"
                     }
                 ]
             }
@@ -44,7 +48,8 @@ module.exports = function(grunt) {
             },
             base: {
                 files: {
-                    '<%= pkg.version %>/build/index-min.js': ['<%= pkg.version %>/build/index.js']
+                    '<%= pkg.version %>/build/index-min.js': ['<%= pkg.version %>/build/index.js'],
+                    '<%= pkg.version %>/build/schemas/time-min.js': ['<%= pkg.version %>/build/schemas/time.js']
                 }
             }
         },
