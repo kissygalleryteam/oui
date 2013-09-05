@@ -97,7 +97,7 @@ return exports;
 	requires: [
     'event',
     'dom',
-    'gallery/oop/0.1/index',
+    '../oop/index',
     'brix/gallery/mu/index',
     './schemas/options',
     './schemas/accessors',
