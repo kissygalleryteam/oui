@@ -1,10 +1,10 @@
 /*
 combined files : 
 
-gallery/oui/src/schemas/time
+gallery/oui/0.1/schemas/time
 
 */
-KISSY.add('gallery/oui/src/schemas/time',function(S, oop) {
+KISSY.add('gallery/oui/0.1/schemas/time',function(S, oop) {
 
 var Class = oop.Class;
 

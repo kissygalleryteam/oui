@@ -1,17 +1,17 @@
 /*
 combined files : 
 
-gallery/oui/src/handler
-gallery/oui/src/schemas/options
-gallery/oui/src/schemas/accessors
-gallery/oui/src/schemas/promise
-gallery/oui/src/schemas/data
-gallery/oui/src/schemas/events
-gallery/oui/src/schemas/factory
-gallery/oui/src/index
+gallery/oui/0.1/handler
+gallery/oui/0.1/schemas/options
+gallery/oui/0.1/schemas/accessors
+gallery/oui/0.1/schemas/promise
+gallery/oui/0.1/schemas/data
+gallery/oui/0.1/schemas/events
+gallery/oui/0.1/schemas/factory
+gallery/oui/0.1/index
 
 */
-KISSY.add('gallery/oui/src/handler',function(S, oop) {
+KISSY.add('gallery/oui/0.1/handler',function(S, oop) {
 
 var Class = oop.Class;
 
@@ -27,7 +27,7 @@ return Handler;
 }, {
     requires: ['../oop/index']
 })
-KISSY.add('gallery/oui/src/schemas/options',function(S, oop, Handler) {
+KISSY.add('gallery/oui/0.1/schemas/options',function(S, oop, Handler) {
 
 function option(value) {
 	var p = oop.property(function() {
@@ -60,7 +60,7 @@ return {
 }, {
 	requires: ['../../oop/index', '../handler']
 });
-KISSY.add('gallery/oui/src/schemas/accessors',function(S, oop, Handler) {
+KISSY.add('gallery/oui/0.1/schemas/accessors',function(S, oop, Handler) {
 
 var Class = oop.Class;
 
@@ -92,7 +92,7 @@ return {
 }, {
 	requires: ['../../oop/index', '../handler']
 });
-KISSY.add('gallery/oui/src/schemas/promise',function(S, Promise) {
+KISSY.add('gallery/oui/0.1/schemas/promise',function(S, Promise) {
 
 /*
 定义：
@@ -122,7 +122,7 @@ return {
 }, {
 	requires: ['promise']
 })
-KISSY.add('gallery/oui/src/schemas/data',function(S, oop, Handler, promise, IO, Mustache) {
+KISSY.add('gallery/oui/0.1/schemas/data',function(S, oop, Handler, promise, IO, Mustache) {
 
 var Class = oop.Class;
 
@@ -198,7 +198,7 @@ return {
 }, {
     requires: ['../../oop/index', '../handler', './promise', 'ajax', 'brix/gallery/mu/index']
 });
-KISSY.add('gallery/oui/src/schemas/events',function(S, oop, Handler, accessors, event) {
+KISSY.add('gallery/oui/0.1/schemas/events',function(S, oop, Handler, accessors, event) {
 
 var Class = oop.Class;
 
@@ -293,7 +293,7 @@ return {
 }, {
 	requires: ['../../oop/index', '../handler', './accessors', 'event']
 });
-KISSY.add('gallery/oui/src/schemas/factory',function(S, oop, Handler, data, accessors, options) {
+KISSY.add('gallery/oui/0.1/schemas/factory',function(S, oop, Handler, data, accessors, options) {
 
 var Class = oop.Class;
 
@@ -341,7 +341,7 @@ return {
 		'./options'
 	]
 });
-KISSY.add('gallery/oui/src/index',function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, factory) {
+KISSY.add('gallery/oui/0.1/index',function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, factory) {
 
 var Class = oop.Class;
 
@@ -440,7 +440,7 @@ return exports;
 	requires: [
     'event',
     'dom',
-    '../oop/index',
+    'gallery/oop/0.1/index',
     'brix/gallery/mu/index',
     './schemas/options',
     './schemas/accessors',

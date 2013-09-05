@@ -12,5 +12,5 @@ var Handler = new Class({
 return Handler;
 
 }, {
-    requires: ['gallery/oop/0.1/index']
+    requires: ['../oop/index']
 })
