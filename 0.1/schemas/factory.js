@@ -39,7 +39,7 @@ return {
 
 }, {
 	requires: [
-		'../../oop/index',
+		'gallery/oop/0.1/index',
 		'../handler',
 		'./data',
 		'./accessors',
