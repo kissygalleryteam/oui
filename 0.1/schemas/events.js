@@ -91,5 +91,5 @@ return {
 }
 
 }, {
-	requires: ['../../oop/index', '../handler', './accessors', 'event']
+	requires: ['gallery/oop/0.1/index', '../handler', './accessors', 'event']
 });

@@ -29,5 +29,5 @@ return {
 }
 
 }, {
-	requires: ['../../oop/index', '../handler']
+	requires: ['gallery/oop/0.1/index', '../handler']
 });
