@@ -72,5 +72,5 @@ return {
 }
 
 }, {
-    requires: ['gallery/oop/0.1/index', '../handler', './promise', 'ajax', 'brix/gallery/mu/index']
+    requires: ['../../oop/index', '../handler', './promise', 'ajax', 'brix/gallery/mu/index']
 });

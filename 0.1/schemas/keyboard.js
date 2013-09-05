@@ -23,5 +23,5 @@ return {
 }
 
 }, {
-	requires: ['gallery/oop/0.1/index', './promise']
+	requires: ['../../oop/index', './promise']
 })
