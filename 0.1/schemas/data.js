@@ -1,23 +1,9 @@
-KISSY.add(function(S, oop, Handler, promise, IO, Mustache) {
+KISSY.add(function(S, oop, Handler, promise, time, IO, Mustache) {
 
 var Class = oop.Class;
 
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-var _time;
-function getTimeModule() {
-    if (_time) return _time;
-    var key = 'components/ui/schemas/time';
-    if (!~Object.keys(S.Env.mods).indexOf(key)) {
-        throw 'time module not required, please add dependency: ' + key;
-    } else if (!S.Env.mods[key].value) {
-        throw 'time module not loaded';
-    } else {
-        _time = S.Env.mods[key].value;
-        return _time;
-    }
 }
 
 function data(options) {
@@ -53,12 +39,10 @@ var DataHandler = new Class(Handler, {
 
         var time;
         if (options.debounce) {
-            time = getTimeModule();
             func = time.debounce(options.debounce, options.immediate)(func);
         }
 
         if (options.throttle) {
-            time = getTimeModule();
             func = time.throttle(options.throttle)(func);
         }
 
@@ -72,5 +56,5 @@ return {
 }
 
 }, {
-    requires: ['gallery/oop/0.1/index', '../handler', './promise', 'ajax', 'brix/gallery/mu/index']
+    requires: ['gallery/oop/0.1/index', '../handler', './promise', './time', 'ajax', 'brix/gallery/mu/index']
 });
