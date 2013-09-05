@@ -25,7 +25,7 @@ var Handler = new Class({
 return Handler;
 
 }, {
-    requires: ['../oop/index']
+    requires: ['gallery/oop/0.1/index']
 })
 KISSY.add('gallery/oui/0.1/schemas/options',function(S, oop, Handler) {
 
@@ -58,7 +58,7 @@ return {
 }
 
 }, {
-	requires: ['../../oop/index', '../handler']
+	requires: ['gallery/oop/0.1/index', '../handler']
 });
 KISSY.add('gallery/oui/0.1/schemas/accessors',function(S, oop, Handler) {
 
@@ -90,7 +90,7 @@ return {
 }
 
 }, {
-	requires: ['../../oop/index', '../handler']
+	requires: ['gallery/oop/0.1/index', '../handler']
 });
 KISSY.add('gallery/oui/0.1/schemas/promise',function(S, Promise) {
 
@@ -196,7 +196,7 @@ return {
 }
 
 }, {
-    requires: ['../../oop/index', '../handler', './promise', 'ajax', 'brix/gallery/mu/index']
+    requires: ['gallery/oop/0.1/index', '../handler', './promise', 'ajax', 'brix/gallery/mu/index']
 });
 KISSY.add('gallery/oui/0.1/schemas/events',function(S, oop, Handler, accessors, event) {
 
@@ -291,7 +291,7 @@ return {
 }
 
 }, {
-	requires: ['../../oop/index', '../handler', './accessors', 'event']
+	requires: ['gallery/oop/0.1/index', '../handler', './accessors', 'event']
 });
 KISSY.add('gallery/oui/0.1/schemas/factory',function(S, oop, Handler, data, accessors, options) {
 
@@ -334,7 +334,7 @@ return {
 
 }, {
 	requires: [
-		'../../oop/index',
+		'gallery/oop/0.1/index',
 		'../handler',
 		'./data',
 		'./accessors',

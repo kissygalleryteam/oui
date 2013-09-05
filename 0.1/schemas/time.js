@@ -181,5 +181,5 @@ return {
 }
 
 }, {
-    requires: ['../../oop/index']
+    requires: ['gallery/oop/0.1/index']
 });
