@@ -37,7 +37,6 @@ var DataHandler = new Class(Handler, {
             IO(config);
         }
 
-        var time;
         if (options.debounce) {
             func = time.debounce(options.debounce, options.immediate)(func);
         }
