@@ -9,6 +9,7 @@ gallery/oui/0.1/schemas/time
 gallery/oui/0.1/schemas/data
 gallery/oui/0.1/schemas/events
 gallery/oui/0.1/schemas/factory
+gallery/oui/0.1/schemas/keyboard
 gallery/oui/0.1/index
 
 */
@@ -511,7 +512,43 @@ return {
 		'./options'
 	]
 });
-KISSY.add('gallery/oui/0.1/index',function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, factory) {
+KISSY.add('gallery/oui/0.1/schemas/keyboard',function(S, oop, promiseSchema) {
+
+function keycode(codes) {
+    var result;
+    if (typeof codes == 'number') {
+        codes = [codes];
+    }
+    return function(func) {
+        result = promiseSchema.promise(function(event, callback) {
+            if (~result.keyCodes.indexOf(event.keyCode)) {
+                func.apply(this, arguments);
+            } else if (callback) {
+                callback();
+            }
+        });
+        result.keyCodes = codes;
+        return result;
+    }
+}
+
+return {
+	keycode: keycode
+}
+
+}, {
+	requires: ['gallery/oop/0.1/index', './promise']
+})
+KISSY.add('gallery/oui/0.1/index',function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, factory, time, keyboard) {
+
+var schemas = {
+    promise: promise,
+    data: data,
+    events: events,
+    factory: factory,
+    time: time,
+    keyboard: keyboard
+}
 
 var Class = oop.Class;
 
@@ -603,6 +640,7 @@ exports.option = options.option;
 exports.define1 = accessors.define1;
 exports.define = accessors.define;
 exports.data = dataSchema.data;
+exports.schemas = schemas;
 
 return exports;
 
@@ -617,6 +655,8 @@ return exports;
     './schemas/data',
     './schemas/events',
     './schemas/promise',
-    './schemas/factory'
+    './schemas/factory',
+    './schemas/time',
+    './schemas/keyboard'
     ]
 });

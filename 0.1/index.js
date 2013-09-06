@@ -1,4 +1,13 @@
-KISSY.add(function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, factory) {
+KISSY.add(function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, factory, time, keyboard) {
+
+var schemas = {
+    promise: promise,
+    data: data,
+    events: events,
+    factory: factory,
+    time: time,
+    keyboard: keyboard
+}
 
 var Class = oop.Class;
 
@@ -90,6 +99,7 @@ exports.option = options.option;
 exports.define1 = accessors.define1;
 exports.define = accessors.define;
 exports.data = dataSchema.data;
+exports.schemas = schemas;
 
 return exports;
 
@@ -104,6 +114,8 @@ return exports;
     './schemas/data',
     './schemas/events',
     './schemas/promise',
-    './schemas/factory'
+    './schemas/factory',
+    './schemas/time',
+    './schemas/keyboard'
     ]
 });
