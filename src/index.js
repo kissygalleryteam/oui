@@ -1,9 +1,11 @@
 KISSY.add(function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, factory, time, keyboard) {
 
 var schemas = {
-    promise: promise,
-    data: data,
+    options: options,
+    accessors: accessors,
+    data: dataSchema,
     events: events,
+    promise: promise,
     factory: factory,
     time: time,
     keyboard: keyboard
