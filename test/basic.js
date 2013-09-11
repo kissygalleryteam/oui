@@ -1,5 +1,3 @@
-KISSY.add(function() {
-	
 describe('component', function() {
 
 	it('sub event', function() {
@@ -23,5 +21,3 @@ describe('component', function() {
 	});
 
 });
-
-})
