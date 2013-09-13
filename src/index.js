@@ -74,7 +74,28 @@ var Component = new Class({
     uses: [options.OptionsHandler, events.BindEventHandler, events.SubEventHandler, dataSchema.DataHandler, factory.FactoryHandler],
 
     initialize : function(node) {
-        this.node = node;
+        if (!node) {
+            throw new Error('bad argument, component must wrap a node');
+        }
+
+        var wrapped;
+
+        // compatible for kissy node
+        if (node.constructor == S.Node) {
+            wrapped = node;
+            node = node[0];
+        } else {
+            wrapped = S.one(node);
+        }
+
+        if (node.component) {
+            throw new Error('node has already wraped');
+        }
+
+        this._node = node;
+        this.node = wrapped;
+        this._node.component = this;
+
         this.handlers.forEach(function(handler) {
             handler.handleInitialize(this);
         }, this);
