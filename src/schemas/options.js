@@ -16,10 +16,10 @@ var OptionsHandler = new oop.Class(Handler, {
 		dict.setOption = this.setOption;
 	},
 	setOption: function(name, value) {
-		self['__' + name] = value;
+		this['__' + name] = value;
 	},
 	getOption: function(name) {
-		return self['__' + name];
+		return this['__' + name];
 	}
 });
 
