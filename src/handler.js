@@ -6,7 +6,8 @@ var Handler = new Class({
 	handleNew: function(metaclass, name, base, dict) {},
     handleMeta: function(meta) {},
     handleMember: function(cls, name, member) {},
-    handleInitialize: function(cls) {}
+    handleInitialize: function(component) {},
+    handleInitialize2: function(cls) {}
 });
 
 return Handler;

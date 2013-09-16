@@ -1,4 +1,4 @@
-KISSY.add(function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, factory, time, keyboard) {
+KISSY.add(function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, register, factory, time, keyboard) {
 
 var schemas = {
     options: options,
@@ -6,6 +6,7 @@ var schemas = {
     data: dataSchema,
     events: events,
     promise: promise,
+    register: register,
     factory: factory,
     time: time,
     keyboard: keyboard
@@ -15,7 +16,7 @@ var Class = oop.Class;
 
 var ComponentMeta = new Class(oop.Type, {
     __new__: function(metaclass, name, base, dict) {
-        var meta = {};
+        var meta = dict.meta || {};
         var handlers;
 
         if (dict.uses) {
@@ -39,6 +40,11 @@ var ComponentMeta = new Class(oop.Type, {
     },
     initialize: function(name, base, dict) {
         var cls = this;
+        if (cls.handlers) {
+            cls.handlers.forEach(function(handler) {
+                handler.handleInitialize2(cls);
+            })
+        }
         cls.__constructed = true;
         if (cls.handlers) {
             Object.keys(dict).forEach(function(name) {
@@ -71,7 +77,7 @@ var Component = new Class({
 
     __mixins__: [EventTarget],
 
-    uses: [options.OptionsHandler, events.BindEventHandler, events.SubEventHandler, dataSchema.DataHandler, factory.FactoryHandler],
+    uses: [options.OptionsHandler, events.BindEventHandler, events.SubEventHandler, dataSchema.DataHandler, register.RegisterHandler, factory.FactoryHandler],
 
     initialize : function(node) {
         if (!node) {
@@ -115,6 +121,10 @@ var Component = new Class({
 
 });
 
+function bootstrap(context) {
+    schemas.register.bootstrap(context);
+}
+
 var exports = {};
 
 exports.Component = Component;
@@ -123,6 +133,7 @@ exports.define1 = accessors.define1;
 exports.define = accessors.define;
 exports.data = dataSchema.data;
 exports.schemas = schemas;
+exports.bootstrap = bootstrap;
 
 return exports;
 
@@ -137,6 +148,7 @@ return exports;
     './schemas/data',
     './schemas/events',
     './schemas/promise',
+    './schemas/register',
     './schemas/factory',
     './schemas/time',
     './schemas/keyboard'
