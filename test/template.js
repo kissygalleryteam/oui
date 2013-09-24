@@ -1,6 +1,6 @@
 describe('template', function() {
 
-	it('basic', function() {
+	it('shadow template', function() {
 		var A = new Class(ui.Component, {
 			meta: {
 				tag: 'mytag',

@@ -1,4 +1,4 @@
-KISSY.add(function(S, oop, Handler) {
+KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 
 	var TemplateHandler = new oop.Class(Handler, {
 		renderShadow: function(component) {
@@ -19,6 +19,21 @@ KISSY.add(function(S, oop, Handler) {
 				component.node.append(shadow);
 			}
 		},
+		handleNew: function(metaclass, name, base, dict) {
+	        var func = function(name, data, callback) {
+	        	var templateNode = S.one(this.__properties__[name].options['template-from']);
+	        	var template = templateNode.html();
+	        	var result = Mustache.to_html(template, data);
+	        	if (templateNode) {
+	        		dom.insertBefore(S.one(result), templateNode);
+	        	} else {
+	        		this.node.append(result);
+	        	}
+	        	callback();
+	        }
+
+	        dict.render = promise.promise(func);
+	    },
 		handleInitialize: function(component) {
 			var self = this;
 
@@ -31,5 +46,5 @@ KISSY.add(function(S, oop, Handler) {
 	};
 
 }, {
-	requires: ['gallery/oop/0.1/index', '../Handler']
+	requires: ['gallery/oop/0.1/index', './promise', '../Handler', 'dom', 'brix/gallery/mu/index']
 })

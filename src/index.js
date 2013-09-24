@@ -1,4 +1,4 @@
-KISSY.add(function(S, event, dom, oop, Mustache, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard) {
+KISSY.add(function(S, event, oop, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard) {
 
 var schemas = {
     options: options,
@@ -114,19 +114,7 @@ var Component = new Class({
         this.handlers.forEach(function(handler) {
             handler.handleInitialize(this);
         }, this);
-    },
-    
-    render: promise.promise(function(name, data, callback) {
-        var templateNode = S.one(this.__properties__[name].options['template-from']);
-        var template = templateNode.html();
-        var result = Mustache.to_html(template, data);
-        if (templateNode) {
-            dom.insertBefore(S.one(result), templateNode);
-        } else {
-            this.node.append(result);
-        }
-        callback();
-    })
+    }
 
 });
 
@@ -149,9 +137,7 @@ return exports;
 }, {
 	requires: [
     'event',
-    'dom',
     'gallery/oop/0.1/index',
-    'brix/gallery/mu/index',
     './schemas/options',
     './schemas/accessors',
     './schemas/data',
