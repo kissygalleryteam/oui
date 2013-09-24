@@ -1,9 +1,10 @@
-KISSY.add(function(S, event, dom, oop, Mustache, options, accessors, dataSchema, events, promise, register, factory, time, keyboard) {
+KISSY.add(function(S, event, dom, oop, Mustache, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard) {
 
 var schemas = {
     options: options,
     accessors: accessors,
     data: dataSchema,
+    template: template,
     events: events,
     promise: promise,
     register: register,
@@ -77,7 +78,15 @@ var Component = new Class({
 
     __mixins__: [EventTarget],
 
-    uses: [options.OptionsHandler, events.BindEventHandler, events.SubEventHandler, dataSchema.DataHandler, register.RegisterHandler, factory.FactoryHandler],
+    uses: [
+        options.OptionsHandler,
+        events.BindEventHandler,
+        events.SubEventHandler,
+        dataSchema.DataHandler,
+        template.TemplateHandler,
+        register.RegisterHandler,
+        factory.FactoryHandler
+    ],
 
     initialize : function(node) {
         if (!node) {
@@ -146,6 +155,7 @@ return exports;
     './schemas/options',
     './schemas/accessors',
     './schemas/data',
+    './schemas/template',
     './schemas/events',
     './schemas/promise',
     './schemas/register',
