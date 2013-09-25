@@ -1,6 +1,7 @@
 KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 
 	var TemplateHandler = new oop.Class(Handler, {
+
 		renderShadow: function(component) {
 			var shadow, nodes, placehoders;
 			var template = component.meta.template;

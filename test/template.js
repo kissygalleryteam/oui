@@ -15,4 +15,19 @@ describe('template', function() {
 		assert.equal(component.node.html(), '<div class="shadow"><span>1</span><span>3</span></div>');
 	});
 
+	it('render', function(done) {
+		var A = new Class(ui.Component, {
+			a: ui.define('.a', {
+				'template-from': '#template'
+			})
+		});
+
+		S.one(document.body).append('<div id="render"><script type="template" id="template"><span class="a">A1</span></script></div>');
+		var a = new A(S.one('#render'));
+		a.render('a', null, function() {
+			assert.equal(a.get('a').length, 1);
+			done();
+		});
+	});
+
 });
