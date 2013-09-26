@@ -13,7 +13,9 @@ KISSY.add(function(S, oop, Handler) {
 	function bootstrap(context) {
 	    Object.keys(customTags).forEach(function(tag) {
 	        var cls = customTags[tag];
-	        new cls(S.one(tag, context));
+	        S.all(tag, context).each(function(node) {
+	        	new cls(node);
+	        });
 	    });
 	}
 

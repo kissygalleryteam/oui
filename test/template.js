@@ -4,14 +4,19 @@ describe('template', function() {
 		var A = new Class(ui.Component, {
 			meta: {
 				tag: 'mytag',
-				template: '<div class="shadow"><content select="span"></content></div>'
+				template: '<div class="shadow"><content select="span"><span>empty</span></content></div>'
 			}
 		});
+
+		var context = S.one('<div><x-mytag></x-mytag></div>');
+		ui.bootstrap(context);
+		var component = context.one('x-mytag')[0].component;
+		console.log(component.node.html());
+		assert.equal(component.node.html(), '<div class="shadow"><span>empty</span></div>');
 
 		var context = S.one('<div><x-mytag><span>1</span><div>2</div><span>3</span></x-mytag></div>');
 		ui.bootstrap(context);
 		var component = context.one('x-mytag')[0].component;
-
 		assert.equal(component.node.html(), '<div class="shadow"><span>1</span><span>3</span></div>');
 	});
 

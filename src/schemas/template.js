@@ -12,6 +12,9 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 				placeholders.each(function(placeholder) {
 					var selector = placeholder.attr('select') || '*';
 					var targets = component.node.all(selector);
+					if (!targets.length) {
+						targets = placeholder.children();
+					}
 					placeholder.replaceWith(targets);
 				});
 			}
