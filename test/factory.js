@@ -1,5 +1,23 @@
 describe('factory', function() {
 
+	it('meta', function() {
+
+		var meta = {
+			define: ['a']
+		};
+
+		var options = {
+		};
+
+		var A = new Class(ui.Component, {
+			__meta: meta,
+			a: ui.define('selector', {
+
+			})
+		});
+
+	});
+
 	it('extended', function() {
 
 		var Base = new Class(ui.Component, {
