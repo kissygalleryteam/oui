@@ -2,29 +2,44 @@ KISSY.add(function(S, oop, Handler) {
 
 var Class = oop.Class;
 
-function define1(selector, options) {
+function define(selector, options) {
+    options = options || {};
+
     var prop = oop.property(function() {
-        return this.node.one(selector);
+        var method = prop.method || 'all';
+        var node = this.node[method](prop.selector);
+        // TODO
+        if (method == 'one' && node && node[0].component) {
+            return node[0].component;
+        }
+        return node;
     });
     prop.uitype = arguments.callee;
     prop.selector = selector;
-    prop.options = options;
+    Object.keys(options).forEach(function(key) {
+        prop[key] = options[key];
+    });
     return prop;
 }
 
-function define(selector, options) {
-    var prop = oop.property(function() {
-        return this.node.all(selector);
-    });
-    prop.uitype = arguments.callee;
-    prop.selector = selector;
-    prop.options = options;
-    return prop;
+function define1(selector, options) {
+    options = options || {};
+    options.method = 'one';
+
+    return define(selector, options);
+}
+
+function parent(selector, options) {
+    options = options || {};
+    options.method = 'parent';
+
+    return define(selector, options);
 }
 
 return {
 	define1: define1,
-	define: define
+	define: define,
+    parent: parent
 }
 
 }, {
