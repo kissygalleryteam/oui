@@ -23,14 +23,16 @@
     });
   </script>
   <script>
-  KISSY.use('gallery/oop/0.1/index, gallery/oui/0.1/index, components/Searchbar/index', function(S, oop, ui, MyComponent) {
+  KISSY.use('gallery/oop/0.1/index, gallery/oui/0.1/index, components/SearchForm/index', function(S, oop, ui) {
     oop.install();
     ui.bootstrap();
   });
   </script>
-  <x-searchform action="" method="">
-    <input type="search" required="required" />
-    <input type="submit" />
+
+  <x-searchform action="" method="" search-key="key">
+    <input type="search" placeholder="enter key" />
+    <x-searchsuggests api="http://localhost/json/suggests.json" method="post" data="q={{key}}" />
   </x-searchform>
+
 </body>
 </html>
