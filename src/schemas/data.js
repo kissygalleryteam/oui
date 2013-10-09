@@ -7,13 +7,16 @@ function capitalize(str) {
 }
 
 function data(options) {
+    options = options || {};
     var prop = oop.property(function() {
         return this['_' + prop.__name__];
     }, function(value) {
         this['_' + prop.__name__] = value;
     });
     prop.uitype = arguments.callee;
-    prop.options = options;
+    Object.keys(options).forEach(function(key) {
+        prop[key] = options[key];
+    });
     return prop;
 }
 
@@ -22,27 +25,26 @@ var DataHandler = new Class(Handler, {
         if (!(member && member.__class__ == oop.property && member.uitype == data)) return;
 
         var methodName = 'load' + capitalize(name);
-        var options = member.options;
 
         var func = function(data, callback) {
             var config = {
-                url: options.api,
-                jsonp: options.jsonp,
-                type: options.method,
-                dataType: options.dataType,
-                scriptCharset: options.scriptCharset,
-                data: Mustache.to_html(options.data, data),
+                url: member.api,
+                jsonp: member.jsonp,
+                type: member.method,
+                dataType: member.dataType,
+                scriptCharset: member.scriptCharset,
+                data: Mustache.to_html(member.data, data),
                 success: callback
             };
             IO(config);
         }
 
-        if (options.debounce) {
-            func = time.debounce(options.debounce, options.immediate)(func);
+        if (member.debounce) {
+            func = time.debounce(member.debounce, member.immediate)(func);
         }
 
-        if (options.throttle) {
-            func = time.throttle(options.throttle)(func);
+        if (member.throttle) {
+            func = time.throttle(member.throttle)(func);
         }
 
         cls.__setattr__(methodName, promise.promise(func));
