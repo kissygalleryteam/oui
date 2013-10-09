@@ -41,11 +41,6 @@ var ComponentMeta = new Class(oop.Type, {
     },
     initialize: function(name, base, dict) {
         var cls = this;
-        if (cls.handlers) {
-            cls.handlers.forEach(function(handler) {
-                handler.handleInitialize2(cls);
-            })
-        }
         cls.__constructed = true;
         if (cls.handlers) {
             Object.keys(dict).forEach(function(name) {
@@ -53,7 +48,10 @@ var ComponentMeta = new Class(oop.Type, {
                 cls.handlers.forEach(function(handler) {
                     handler.handleMember(cls, name, member);
                 })
-            })
+            });
+            cls.handlers.forEach(function(handler) {
+                handler.handleInitialize2(cls);
+            });
         }
     },
     __setattr__: function(name, member) {
@@ -79,13 +77,13 @@ var Component = new Class({
     __mixins__: [EventTarget],
 
     uses: [
+        factory.FactoryHandler,
         options.OptionsHandler,
         events.BindEventHandler,
         events.SubEventHandler,
         dataSchema.DataHandler,
         template.TemplateHandler,
-        register.RegisterHandler,
-        factory.FactoryHandler
+        register.RegisterHandler
     ],
 
     initialize : function(node) {
