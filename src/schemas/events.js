@@ -26,33 +26,7 @@ var SubEventHandler = new Class(Handler, {
         dict.meta.subEvents = [];
     },
     handleMember: function(cls, name, member) {
-        if (member && (member.uitype == accessors.define || member.uitype == accessors.define1) && member.options && member.options.bind) {
-            Object.keys(member.options.bind).forEach(function(eventName) {
-                var expressions = member.options.bind[eventName].split(/\s*,\s*/);
-                cls.meta.subEvents.push({
-                    sub: name,
-                    name: eventName,
-                    func: function(event) {
-                        var self = this;
-                        expressions.forEach(function(expression) {
-                            var match = expression.match(/^(.*?)(?:\((.*)\))?$/);
-                            var methodName = match[1];
-                            var argName = match[2];
-                            var args = [];
-                            if (argName) {
-                                if (argName == '$event') {
-                                    args.push(event);
-                                } else if (argName == '$target') {
-                                    args.push(event.target);
-                                }
-                            }
-                            cls.prototype[methodName].apply(self, args);
-                        });
-                    }
-                });
-            });
-        }
-        else if (name.match(/^(.+)_on(.+)$/)) {
+        if (name.match(/^(.+)_on(.+)$/)) {
             cls.meta.subEvents.push({
                 sub: RegExp.$1,
                 name: RegExp.$2,
@@ -61,8 +35,42 @@ var SubEventHandler = new Class(Handler, {
         }
     },
     handleInitialize: function(component) {
-        component.meta.subEvents.forEach(function(item) {
-            var selector = component.__properties__[item.sub].selector;
+        var meta = component.meta;
+        var subEvents = [].concat(component.meta.subEvents);
+        var defines = [].concat(meta.define || []).concat(meta.define1 || []).concat(meta.parent || []);
+        defines.forEach(function(name) {
+            var member = component.__properties__[name];
+            if (member && member.bind) {
+                Object.keys(member.bind).forEach(function(eventName) {
+                    var expressions = member.bind[eventName].split(/\s*,\s*/);
+                    subEvents.push({
+                        sub: name,
+                        name: eventName,
+                        func: function(event) {
+                            var self = this;
+                            expressions.forEach(function(expression) {
+                                var match = expression.match(/^(.*?)(?:\((.*)\))?$/);
+                                var methodName = match[1];
+                                var argName = match[2];
+                                var args = [];
+                                if (argName) {
+                                    if (argName == '$event') {
+                                        args.push(event);
+                                    } else if (argName == '$target') {
+                                        args.push(event.target);
+                                    }
+                                }
+                                component[methodName].apply(self, args);
+                            });
+                        }
+                    });
+                });
+        }
+        });
+
+        subEvents.forEach(function(item) {
+            var member = component.__properties__[item.sub];
+            var selector = member.selector;
             // can't delegate event
             if (~['blur', 'valuechange'].indexOf(item.name)) {
                 event.on(selector, item.name, function(event) {
