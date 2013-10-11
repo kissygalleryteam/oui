@@ -1,7 +1,8 @@
 {
     "name": "oui",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "devDependencies": {
+    	"mocha": "*",
         "grunt-contrib-uglify": "~0.2.0",
         "grunt": "~0.4.1",
         "grunt-kmc": "~0.1.1",
