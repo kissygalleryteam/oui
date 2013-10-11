@@ -98,79 +98,125 @@ function randomInterval(min, max) {
 }
 
 var DelayActivator = new Class({
-    __signal: false,
-    __actived: false,
-    __activeTimer: null,
-    __deactiveTimer: null,
-    wait: 0,
-    active: function(func) {
+    __actived: null,
+    __activeMode: 0,
+    __activations: {},
+    enableActiveMode: true,
+    active: function(func, id) {
         var self = this;
-        clearTimeout(self.__deactiveTimer);
-        self.__deactiveTimer = null;
 
-        if (self.__actived) {
-            func();
+        var activation;
+        if (id) {
+            if (typeof id == 'object') {
+                activation = id.activation || {};
+                id.activation = activation;
+            } else {
+                activation = self.__activations[id] || {};
+                self.__activations[id] = activation;
+            }
         } else {
-            self.__signal = true;
-            self.__activeTimer = setTimeout(function() {
-                if (self.__signal) {
-                    func();
-                    self.__actived = true;
-                }
-                self.__activeTimer = null;
-            }, self.activeWait);
+            activation = {};
+        }
+        activation.active = func;
+        self.__actived = activation;
+
+        function active() {
+            activation.active();
+            activation.activeTimer = null;
+            if (self.enableActiveMode) {
+                self.__activeMode++;
+            }
+        }
+
+        if (activation.deactiveTimer) {
+            self.stopDeactive();
+        } else if (self.__activeMode) {
+            active();
+        } else {
+            activation.activeTimer = setTimeout(active, self.activeWait);
         }
     },
     deactive: function(func) {
         var self = this;
-        clearTimeout(self.__activeTimer);
-        self.__activeTimer = null;
 
-        self.__signal = false;
-        self.__deactiveTimer = setTimeout(function() {
-            if (!self.__signal) {
-                func();
-                self.__actived = false;
+        var activation = self.__actived;
+        activation.deactive = func;
+
+        function deactive() {
+            activation.deactive();
+            activation.deactiveTimer = null;
+            if (self.enableActiveMode) {
+                self.__activeMode--;
             }
-            self.__deactiveTimer = null;
-        }, self.deactiveWait);
+        }
+
+        if (activation.activeTimer) {
+            self.stopActive();
+        } else if (self.deactiveWait) {
+            activation.deactiveTimer = setTimeout(deactive, self.deactiveWait);
+        } else {
+            deactive();
+        }
+    },
+    hold: function() {
+        var self = this;
+        self.stopDeactive();
+    },
+    release: function() {
+        var self = this;
+        var activation = self.__actived;
+        self.deactive(activation.deactive);
+    },
+    stopActive: function() {
+        var self = this;
+        var activation = self.__actived;
+        clearTimeout(activation.activeTimer);
+        activation.activeTimer = null;
+    },
+    stopDeactive: function() {
+        var self = this;
+        var activation = self.__actived;
+        clearTimeout(activation.deactiveTimer);
+        activation.deactiveTimer = null;
     },
     activate: function(wait) {
         var self = this;
         self.activeWait = wait;
         return function(func) {
-            return function() {
+            return function(id) { 
                 var context = this;
                 var args = arguments;
                 self.active(function() {
                     func.apply(context, args);
-                });
+                }, id);
             }
         }
     },
     deactivate: function(wait) {
         var self = this;
-        self.deactiveWait = wait;
-        return function(func) {
-            return function() {
-                var context = this;
-                var args = arguments;
-                self.deactive(function() {
-                    func.apply(context, args);
-                });
-            }
+
+        var func;
+
+        function _deactivate() {
+            var context = this;
+            var args = arguments;
+            self.deactive(function() {
+                func.apply(context, args);
+            });
         }
-    },
-    hold: function() {
-        var self = this;
-        return function() {
-            if (!self.__signal) {
-                self.__signal = true;
+
+        if (typeof wait == 'function') {
+            func = wait;
+            return _deactivate;
+        } else {
+            self.deactiveWait = wait;
+            return function() {
+                func = f;
+                return _deactivate;
             }
         }
     }
 });
-
 
 return {
 	throttle: throttle,
