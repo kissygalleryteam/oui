@@ -126,6 +126,7 @@ exports.Component = Component;
 exports.option = options.option;
 exports.define1 = accessors.define1;
 exports.define = accessors.define;
+exports.parent = accessors.parent;
 exports.data = dataSchema.data;
 exports.schemas = schemas;
 exports.bootstrap = bootstrap;
