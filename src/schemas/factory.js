@@ -16,7 +16,7 @@ var FactoryHandler = new Class(Handler, {
 			this.handleFactory(cls, member);
 		}
 	},
-	handleInitialize: function(component) {
+	handleInstance: function(component) {
 		var options = component.__factory;
 		if (!options) return;
 

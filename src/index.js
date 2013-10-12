@@ -50,7 +50,7 @@ var ComponentMeta = new Class(oop.Type, {
                 })
             });
             cls.handlers.forEach(function(handler) {
-                handler.handleInitialize2(cls);
+                handler.handleInitialize(cls);
             });
         }
     },
@@ -110,7 +110,7 @@ var Component = new Class({
         this._node.component = this;
 
         this.handlers.forEach(function(handler) {
-            handler.handleInitialize(this);
+            handler.handleInstance(this);
         }, this);
     }
 

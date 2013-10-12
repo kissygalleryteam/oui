@@ -14,7 +14,7 @@ var BindEventHandler = new Class(Handler, {
             method: name
         });
     },
-    handleInitialize: function(component) {
+    handleInstance: function(component) {
         component.meta.bindEvents.forEach(function(item) {
             component.node.on(item.name, component[item.method].bind(component));
         });
@@ -34,7 +34,7 @@ var SubEventHandler = new Class(Handler, {
             });
         }
     },
-    handleInitialize: function(component) {
+    handleInstance: function(component) {
         var meta = component.meta;
         var subEvents = [].concat(component.meta.subEvents);
         var defines = [].concat(meta.define || []).concat(meta.define1 || []).concat(meta.parent || []);

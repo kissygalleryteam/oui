@@ -3,7 +3,7 @@ KISSY.add(function(S, oop, Handler) {
 	var customTags = {};
 
 	var RegisterHandler = new oop.Class(Handler, {
-		handleInitialize2: function(cls) {
+		handleInitialize: function(cls) {
 			if (cls.meta.tag) {
 				customTags[(cls.meta.namespace || 'x') + '-' + cls.meta.tag] = cls;
 			}

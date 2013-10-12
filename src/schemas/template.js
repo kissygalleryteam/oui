@@ -56,7 +56,7 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 
 	        dict.render = promise.promise(func);
 	    },
-		handleInitialize: function(component) {
+		handleInstance: function(component) {
 			var self = this;
 
 			self.renderShadow(component);
