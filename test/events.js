@@ -5,7 +5,7 @@ describe('events', function() {
 		var node = S.one('<input />');
 
 		var A = new Class(ui.Component, {
-			onclick: function(event) {
+			onClick: function(event) {
 				eventCalled++;
 			}
 		});
