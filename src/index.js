@@ -70,7 +70,7 @@ function EventTarget() {
 
 EventTarget.prototype = event.Target;
 
-var Component = new Class({
+var Component = new Class(HTMLElement, {
 
     __metaclass__ : ComponentMeta,
 
@@ -87,10 +87,14 @@ var Component = new Class({
     ],
 
     initialize : function(node) {
-        if (!node) {
-            throw new Error('bad argument, component must wrap a node');
-        }
+        var self = this;
 
+        if (node) {
+            return self.__class__.inject(node);
+        }
+    },
+
+    inject: oop.staticmethod(function(node) {
         var wrapped;
 
         // compatible for kissy node
@@ -101,18 +105,22 @@ var Component = new Class({
             wrapped = S.one(node);
         }
 
+        node = oop.inject(node, this);
+
         if (node.component) {
             throw new Error('node has already wraped');
         }
 
-        this._node = node;
-        this.node = wrapped;
-        this._node.component = this;
+        node._node = node;
+        node.node = wrapped;
+        node._node.component = node;
 
-        this.handlers.forEach(function(handler) {
-            handler.handleInstance(this);
-        }, this);
-    }
+        node.handlers.forEach(function(handler) {
+            handler.handleInstance(node);
+        });
+
+        return node;
+    })
 
 });
 

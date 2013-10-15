@@ -28,15 +28,6 @@ describe('basic', function() {
 		assert.equal(a2._node.innerHTML, '2');
 	});
 
-	it('init component must wrap a node', function() {
-		var A = new Class(ui.Component, {
-		});
-
-		assert.throws(function() {
-			var a = new A();
-		});
-	});
-
 	it('init component with same node throw error', function() {
 
 		var A = new Class(ui.Component, {
