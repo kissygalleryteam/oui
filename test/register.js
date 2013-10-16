@@ -4,6 +4,9 @@ describe('register', function() {
 		var A = new Class(ui.Component, {
 			meta: {
 				tag: 'mytag'
+			},
+			m: function() {
+				return 1;
 			}
 		});
 
@@ -12,6 +15,7 @@ describe('register', function() {
 		});
 
 		var node2 = document.createElement('x-mytag');
+		assert.equal(node2.m(), 1);
 	});
 
 	it('bootstrapped', function() {

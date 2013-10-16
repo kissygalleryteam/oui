@@ -45,6 +45,7 @@ KISSY.add(function(S, oop, Handler) {
 		} else {
 			node = S.one('<' + tag + '/>')[0];
 		}
+		new cls(node);
 		return node;
 	}
 
