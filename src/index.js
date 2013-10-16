@@ -90,43 +90,53 @@ var Component = new Class(HTMLElement, {
         var self = this;
 
         if (node) {
-            return self.__class__.inject(node);
+            var wrapped;
+
+            // compatible for kissy node
+            if (node.constructor == S.Node) {
+                wrapped = node;
+                node = node[0];
+            } else {
+                wrapped = S.one(node);
+            }
+
+            node = oop.inject(node, this.__class__);
+
+            if (node.component) {
+                throw new Error('node has already wraped');
+            }
+
+            node._node = node;
+            node.node = wrapped;
+            node._node.component = node;
+
+            node.handlers.forEach(function(handler) {
+                handler.handleInstance(node);
+            });
+
+            return node;
         }
-    },
-
-    inject: oop.staticmethod(function(node) {
-        var wrapped;
-
-        // compatible for kissy node
-        if (node.constructor == S.Node) {
-            wrapped = node;
-            node = node[0];
-        } else {
-            wrapped = S.one(node);
-        }
-
-        node = oop.inject(node, this);
-
-        if (node.component) {
-            throw new Error('node has already wraped');
-        }
-
-        node._node = node;
-        node.node = wrapped;
-        node._node.component = node;
-
-        node.handlers.forEach(function(handler) {
-            handler.handleInstance(node);
-        });
-
-        return node;
-    })
+    }
 
 });
 
 function bootstrap(context) {
     schemas.register.bootstrap(context);
 }
+
+(function() {
+    var _create = document.createElement;
+    document.createElement = function(tagName) {
+        var node;
+        if (tagName.indexOf('-') != -1) {
+            node = register.create(tagName);
+        } else {
+            node = _create.apply(document, arguments);
+        }
+
+        return node;
+    }
+})();
 
 var exports = {};
 

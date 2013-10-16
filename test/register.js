@@ -1,5 +1,19 @@
 describe('register', function() {
 
+	it('create', function() {
+		var A = new Class(ui.Component, {
+			meta: {
+				tag: 'mytag'
+			}
+		});
+
+		assert.throws(function() {
+			document.createElement('x-xxx');
+		});
+
+		var node2 = document.createElement('x-mytag');
+	});
+
 	it('bootstrapped', function() {
 		var inited = false;
 		var A = new Class(ui.Component, {

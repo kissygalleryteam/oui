@@ -31,10 +31,28 @@ KISSY.add(function(S, oop, Handler) {
 	    });
 	}
 
+	function create(tagName) {
+		var cls = customTags[tagName];
+		if (!cls) {
+			throw new Error(tagName + ' not registed');
+		}
+		var meta = cls.meta;
+		var baseTag = meta.baseTag;
+		var tag = (meta.namespace || 'x') + '-' + meta.tag;
+		var node;
+		if (baseTag) {
+			node = S.one('<' + baseTag + 'is="' + tag + '" />')[0];
+		} else {
+			node = S.one('<' + tag + '/>')[0];
+		}
+		return node;
+	}
+
 	return {
 		customTags: customTags,
 		RegisterHandler: RegisterHandler,
-		bootstrap: bootstrap
+		bootstrap: bootstrap,
+		create: create
 	};
 
 }, {
