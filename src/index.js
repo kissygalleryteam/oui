@@ -128,7 +128,7 @@ function bootstrap(context) {
 	var originOne = Node.one;
 	S.one = Node.one = function() {
 		var result = originOne.apply(this, arguments);
-		if (result) {
+		if (result && result[0].nodeName) {
 			var node = result[0];
 			var cls = register.customTags[result.nodeName()];
 			if (node.component) {
@@ -139,6 +139,7 @@ function bootstrap(context) {
 	    		return result;
 	    	}
 		}
+	    return result;
     }
 })();
 
