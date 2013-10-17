@@ -1,4 +1,4 @@
-KISSY.add(function(S, event, oop, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard) {
+KISSY.add(function(S, event, Node, oop, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard) {
 
 var schemas = {
     options: options,
@@ -18,17 +18,24 @@ var Class = oop.Class;
 var ComponentMeta = new Class(oop.Type, {
     __new__: function(metaclass, name, base, dict) {
         var meta = dict.meta || {};
-        var handlers;
+        var uses, handlers;
 
-        if (dict.uses) {
-            handlers = [];
-            dict.uses.forEach(function(Handler) {
-                handlers.push(new Handler());
-            });
-            dict.handlers = handlers;
-        } else {
-            handlers = base.handlers;
-        }
+        dict.__mixins__ = [EventTarget];
+
+        uses = dict.uses || base.uses || [
+            factory.FactoryHandler,
+            options.OptionsHandler,
+            events.BindEventHandler,
+            events.SubEventHandler,
+            dataSchema.DataHandler,
+            template.TemplateHandler,
+            register.RegisterHandler
+        ];
+        handlers = [];
+        uses.forEach(function(Handler) {
+            handlers.push(new Handler());
+        });
+        dict.handlers = handlers;
 
         dict.meta = meta;
         dict.__constructed = false;
@@ -70,54 +77,47 @@ function EventTarget() {
 
 EventTarget.prototype = event.Target;
 
-var Component = new Class(HTMLElement, {
-
+var Component = new Class(S.Node, {
     __metaclass__ : ComponentMeta,
-
-    __mixins__: [EventTarget],
-
-    uses: [
-        factory.FactoryHandler,
-        options.OptionsHandler,
-        events.BindEventHandler,
-        events.SubEventHandler,
-        dataSchema.DataHandler,
-        template.TemplateHandler,
-        register.RegisterHandler
-    ],
-
-    initialize : function(node) {
+    initialize: function(node) {
         var self = this;
 
-        if (node) {
-            var wrapped;
+    	Node.call(self, node);
 
-            // compatible for kissy node
-            if (node.constructor == S.Node) {
-                wrapped = node;
-                node = node[0];
-            } else {
-                wrapped = S.one(node);
-            }
+        if (self.__class__ === Component) {
+        	return;
+    	}
 
-            node = oop.inject(node, this.__class__);
+    	var wrapped = Node(node);
+    	node = wrapped[0];
 
-            if (node.component) {
-                throw new Error('node has already wraped');
-            }
+    	if (node.component) {
+    		if (node.component.__class__ !== self.__class__) {
+	            throw new Error('node has already wraped');
+    		}
+    		return node.component;
+    	}
 
-            node._node = node;
-            node.node = wrapped;
-            node._node.component = node;
-
-            node.handlers.forEach(function(handler) {
-                handler.handleInstance(node);
+        var meta = self.meta;
+        var newNode;
+        if (meta.baseTag && meta.baseTag != node.nodeName.toLowerCase()) {
+            newNode = S.one('<' + meta.baseTag + ' is="' + meta.tag + '" />');
+            S.each(node.attributes, function(attr) {
+                newNode.attr(attr.name, attr.value);
             });
-
-            return node;
+            wrapped.children().appendTo(newNode);
+            wrapped.replaceWith(newNode);
+            node = newNode[0];
         }
-    }
 
+        self._node = node;
+        self.node = wrapped;
+        self._node.component = self;
+
+        self.handlers.forEach(function(handler) {
+            handler.handleInstance(self);
+        });
+    }
 });
 
 function bootstrap(context) {
@@ -125,16 +125,20 @@ function bootstrap(context) {
 }
 
 (function() {
-    var _create = document.createElement;
-    document.createElement = function(tagName) {
-        var node;
-        if (tagName.indexOf('-') != -1) {
-            node = register.create(tagName);
-        } else {
-            node = _create.apply(document, arguments);
-        }
-
-        return node;
+	var originOne = Node.one;
+	S.one = Node.one = function() {
+		var result = originOne.apply(this, arguments);
+		if (result) {
+			var node = result[0];
+			var cls = register.customTags[result.nodeName()];
+			if (node.component) {
+				return node.component;
+			} else if (cls) {
+	    		return new cls(node);
+	    	} else {
+	    		return result;
+	    	}
+		}
     }
 })();
 
@@ -154,6 +158,7 @@ return exports;
 }, {
 	requires: [
     'event',
+    'node',
     'gallery/oop/0.1/index',
     './schemas/options',
     './schemas/accessors',

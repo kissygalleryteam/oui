@@ -12,25 +12,17 @@ KISSY.add(function(S, oop, Handler) {
 
 	function bootstrap(context) {
 	    Object.keys(customTags).forEach(function(tag) {
-	        var cls = customTags[tag];
 	        S.all(tag, context).each(function(node) {
-	        	var newNode;
-	        	var name = node.nodeName();
-	        	var baseTag = cls.meta.baseTag;
-	        	if (baseTag && baseTag != name) {
-	        		newNode = S.one('<' + baseTag + ' is="' + name + '" />');
-	        		S.each(node[0].attributes, function(attr) {
-	        			newNode.attr(attr.name, attr.value);
-	        		});
-	        		node.children().appendTo(newNode);
-	        		node.replaceWith(newNode);
-	        		node = newNode;
-	        	}
+	        	var tag = node.nodeName();
+	        	var cls = customTags[tag];
 	        	new cls(node);
 	        });
 	    });
 	}
 
+	/**
+	 * create a custom element
+	 */
 	function create(tagName) {
 		var cls = customTags[tagName];
 		if (!cls) {
