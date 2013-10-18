@@ -7,10 +7,9 @@ function define(selector, options) {
 
     var prop = oop.property(function() {
         var method = prop.method || 'all';
-        var node = this.node[method](prop.selector);
-        // TODO
-        if (method == 'one' && node && node[0].component) {
-            return node[0].component;
+        var node = this[method](prop.selector);
+        if (prop.method == 'one' && node[0].component) {
+            node = node[0].component;
         }
         return node;
     });

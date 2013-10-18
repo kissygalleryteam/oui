@@ -110,9 +110,8 @@ var Component = new Class(S.Node, {
             node = newNode[0];
         }
 
-        self._node = node;
-        self.node = wrapped;
-        self._node.component = self;
+        self.node = node;
+        self.node.component = self;
 
         self.handlers.forEach(function(handler) {
             handler.handleInstance(self);

@@ -11,7 +11,7 @@ describe('events', function() {
 		});
 
 		var a = new A(node);
-		a.node.fire('click');
+		a.fire('click');
 		
 		assert.strictEqual(eventCalled, 1);
 	});

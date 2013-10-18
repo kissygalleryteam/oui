@@ -27,7 +27,7 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 				placeholders = S.all(shadow.querySelectorAll('content'));
 				placeholders.each(function(placeholder) {
 					var selector = placeholder.attr('select') || '*';
-					var targets = component.node.all(selector);
+					var targets = component.all(selector);
 					if (!targets.length) {
 						targets = placeholder.children();
 					}
@@ -35,8 +35,8 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 				});
 			}
 			if (shadow) {
-				component.node.html('');
-				component.node.append(shadow);
+				component.html('');
+				component.append(shadow);
 			}
 		},
 		handleNew: function(metaclass, name, base, dict) {
@@ -49,7 +49,7 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 	        	if (point) {
 	        		dom.insertBefore(S.one(result), point);
 	        	} else {
-	        		this.node.append(result);
+	        		this.append(result);
 	        	}
 	        	callback();
 	        }

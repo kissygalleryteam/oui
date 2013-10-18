@@ -10,8 +10,8 @@ describe('basic', function() {
 		var a1 = new A(node1);
 		var a2 = new A(node2);
 
-		assert.equal(a1.node.text(), '1');
-		assert.equal(a2.node.text(), '2');
+		assert.equal(a1.text(), '1');
+		assert.equal(a2.text(), '2');
 	});
 
 	it('component._node is a pure node', function() {
@@ -24,8 +24,8 @@ describe('basic', function() {
 		var a1 = new A(node1);
 		var a2 = new A(node2);
 
-		assert.equal(a1._node.innerHTML, '1');
-		assert.equal(a2._node.innerHTML, '2');
+		assert.equal(a1.node.innerHTML, '1');
+		assert.equal(a2.node.innerHTML, '2');
 	});
 
 	it('init component with same node throw error', function() {
