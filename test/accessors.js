@@ -7,7 +7,7 @@ describe('accessors', function() {
 
 		var a = new A(S.one('<div><span class="a">A1</span><span class="a">A2</span></div>'));
 
-		assert.equal(a.get('a').length, 2);
+		assert.equal(S.all(a.get('a')).length, 2);
 	});
 
 	it('define1', function() {
@@ -17,8 +17,7 @@ describe('accessors', function() {
 
 		var a = new A(S.one('<div><span class="a">A</span></div>'));
 
-		assert.equal(a.get('a').text(), 'A');
-
+		assert.equal(a.get('a').node.innerHTML, 'A');
 	});
 
 	it('parent', function() {
@@ -28,7 +27,7 @@ describe('accessors', function() {
 
 		var a = new A(S.one('<form><div class="component"></div></form>').one('.component'));
 
-		assert.equal(a.get('a').nodeName(), 'form')
+		assert.equal(a.get('a').node.nodeName, 'FORM')
 
 	});
 
@@ -45,7 +44,7 @@ describe('accessors', function() {
 		});
 
 		var node = S.one('<div />');
-		node.append(a);
+		node.append(S.one(a));
 
 		var b = new B(node);
 		assert.equal(b.a.m(), 1);
@@ -64,20 +63,20 @@ describe('accessors', function() {
 		var a4 = new A(S.one('<span class="a">a</span>'));
 
 		var node = S.one('<div />');
-		node.append(a1);
-		node.append(a2);
-		node.append(a3);
-		node.append(a4);
+		node.append(S.one(a1));
+		node.append(S.one(a2));
+		node.append(S.one(a3));
+		node.append(S.one(a4));
 
 		var B = new Class(ui.Component, {
 			a: ui.define('.a')
 		});
 
 		var b = new B(node);
-		assert.equal(S.one(b.a.item(0)).m(), 1);
+		assert.equal(b.a[0].m(), 1);
 
-		b.a.each(function(item) {
-			assert.equal(S.one(item).m(), 1);
+		b.a.forEach(function(component) {
+			assert.equal(component.m(), 1);
 		});
 
 	})

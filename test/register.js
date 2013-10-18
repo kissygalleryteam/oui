@@ -11,7 +11,7 @@ describe('register', function() {
 		});
 
 		var node = S.one('<x-mytag />');
-		assert.equal(node.m(), 1);
+		assert.equal(node[0].component.m(), 1);
 	});
 
 	it('bootstrapped', function() {
@@ -28,7 +28,7 @@ describe('register', function() {
 		var context = S.one('<div><x-mytag></x-mytag></div>');
 		ui.bootstrap(context);
 
-		assert.equal(S.one('x-mytag', context).m(), 1);
+		assert.equal(S.one('x-mytag', context)[0].component.m(), 1);
 	});
 
 	it('namespace', function() {

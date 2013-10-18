@@ -11,7 +11,7 @@ describe('events', function() {
 		});
 
 		var a = new A(node);
-		a.fire('click');
+		S.one(a).fire('click');
 		
 		assert.strictEqual(eventCalled, 1);
 	});
@@ -29,7 +29,7 @@ describe('events', function() {
 		});
 
 		var a = new A(node);
-		a.input.fire('click');
+		S.one(a.input).fire('click');
 
 		assert.strictEqual(eventCalled, 1);
 	});

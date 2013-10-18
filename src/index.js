@@ -1,18 +1,5 @@
 KISSY.add(function(S, event, Node, oop, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard) {
 
-var schemas = {
-    options: options,
-    accessors: accessors,
-    data: dataSchema,
-    template: template,
-    events: events,
-    promise: promise,
-    register: register,
-    factory: factory,
-    time: time,
-    keyboard: keyboard
-}
-
 var Class = oop.Class;
 
 var ComponentMeta = new Class(oop.Type, {
@@ -77,26 +64,22 @@ function EventTarget() {
 
 EventTarget.prototype = event.Target;
 
-var Component = new Class(S.Node, {
+var Component = new Class({
     __metaclass__ : ComponentMeta,
     initialize: function(node) {
         var self = this;
 
-    	Node.call(self, node);
-
-        if (self.__class__ === Component) {
-        	return;
-    	}
-
     	var wrapped = Node(node);
     	node = wrapped[0];
 
-    	if (node.component) {
-    		if (node.component.__class__ !== self.__class__) {
-	            throw new Error('node has already wraped');
-    		}
-    		return node.component;
-    	}
+        if (node.component) {
+            if (node.component.__class__ === self.__class__) {
+                return node.component;
+            }
+            if (!(self instanceof node.component.__class__)) {
+                throw new Error('node has already wraped');
+            }
+        }
 
         var meta = self.meta;
         var newNode;
@@ -120,27 +103,48 @@ var Component = new Class(S.Node, {
 });
 
 function bootstrap(context) {
-    schemas.register.bootstrap(context);
+    register.bootstrap(context);
 }
 
 (function() {
 	var originOne = Node.one;
-	S.one = Node.one = function() {
-		var result = originOne.apply(this, arguments);
-		if (result && result[0].nodeName) {
-			var node = result[0];
-			var cls = register.customTags[result.nodeName()];
-			if (node.component) {
-				return node.component;
-			} else if (cls) {
-	    		return new cls(node);
-	    	} else {
-	    		return result;
-	    	}
-		}
-	    return result;
+	S.one = Node.one = function(component) {
+        var args = Array.prototype.slice.call(arguments, 0);
+        if (component.node) {
+            args[0] = component.node;
+        }
+        var result = originOne.apply(this, args);
+        if (result[0]) {
+            wrap(result[0]);
+        }
+        return result;
     }
 })();
+
+function wrap(node) {
+    var cls;
+    if (node.component) {
+        return node.component;
+    } else {
+        cls = register.customTags[node.nodeName.toLowerCase()] || Component;
+        return new cls(node);
+    }
+}
+
+var schemas = {
+    options: options,
+    accessors: accessors,
+    data: dataSchema,
+    template: template,
+    events: events,
+    promise: promise,
+    register: register,
+    factory: factory,
+    time: time,
+    keyboard: keyboard
+}
+
+accessors.bind(wrap);
 
 var exports = {};
 
@@ -152,6 +156,7 @@ exports.parent = accessors.parent;
 exports.data = dataSchema.data;
 exports.schemas = schemas;
 exports.bootstrap = bootstrap;
+exports.wrap = wrap;
 
 return exports;
 

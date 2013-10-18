@@ -55,7 +55,7 @@ var OptionsHandler = new oop.Class(Handler, {
 		if (self['__' + name]) {
 			value = type(self['__' + name]);
 		} else if (member.attribute) {
-			value = type(self.attr(name));
+			value = type(S.one(self.node).attr(name));
 		}
 		return value;
 	}

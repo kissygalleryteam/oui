@@ -16,7 +16,7 @@ var BindEventHandler = new Class(Handler, {
     },
     handleInstance: function(component) {
         component.meta.bindEvents.forEach(function(item) {
-            component.on(item.name, component[item.method].bind(component));
+            S.one(component.node).on(item.name, component[item.method].bind(component));
         });
     }
 });

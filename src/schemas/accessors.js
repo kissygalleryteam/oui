@@ -1,5 +1,7 @@
 KISSY.add(function(S, oop, Handler) {
 
+var wrap;
+
 var Class = oop.Class;
 
 function define(selector, options) {
@@ -7,11 +9,17 @@ function define(selector, options) {
 
     var prop = oop.property(function() {
         var method = prop.method || 'all';
-        var node = this[method](prop.selector);
-        if (prop.method == 'one' && node[0].component) {
-            node = node[0].component;
+        var node = S.one(this.node)[method](prop.selector);
+
+        if (method == 'parent' || method == 'one') {
+            return wrap(node[0]);
+        } else if (method == 'all') {
+            var arr = [];
+            node.each(function(item) {
+                arr.push(wrap(item[0]));
+            });
+            return arr;
         }
-        return node;
     });
     prop.uitype = arguments.callee;
     prop.selector = selector;
@@ -38,7 +46,10 @@ function parent(selector, options) {
 return {
 	define1: define1,
 	define: define,
-    parent: parent
+    parent: parent,
+    bind: function(func) {
+        wrap = func;
+    }
 }
 
 }, {
