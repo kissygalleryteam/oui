@@ -1,4 +1,4 @@
-KISSY.add(function(S, event, Node, oop, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard) {
+KISSY.add(function(S, event, Node, oop, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard, binding) {
 
 var Class = oop.Class;
 
@@ -16,7 +16,8 @@ var ComponentMeta = new Class(oop.Type, {
             events.SubEventHandler,
             dataSchema.DataHandler,
             template.TemplateHandler,
-            register.RegisterHandler
+            register.RegisterHandler,
+            binding.BindingHandler
         ];
         handlers = [];
         uses.forEach(function(Handler) {
@@ -141,7 +142,8 @@ var schemas = {
     register: register,
     factory: factory,
     time: time,
-    keyboard: keyboard
+    keyboard: keyboard,
+    binding: binding
 }
 
 accessors.bind(wrap);
@@ -174,6 +176,7 @@ return exports;
     './schemas/register',
     './schemas/factory',
     './schemas/time',
-    './schemas/keyboard'
+    './schemas/keyboard',
+    './schemas/binding'
     ]
 });
