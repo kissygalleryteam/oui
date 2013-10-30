@@ -21,6 +21,7 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 			var self = this;
 			var shadow, nodes, placehoders;
 			var template = self.getTemplate(component.meta);
+			var temp;
 			if (template) {
 				shadow = document.createDocumentFragment();
 				S.all(template).appendTo(shadow);
@@ -35,6 +36,11 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 				});
 			}
 			if (shadow) {
+				temp = document.createDocumentFragment();
+				S.one(component).children().each(function(node) {
+					node.appendTo(temp);
+				});
+				component.temp = temp;
 				S.one(component).html('');
 				S.one(component).append(shadow);
 			}
