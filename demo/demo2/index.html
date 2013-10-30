@@ -28,8 +28,32 @@
     ui.bootstrap();
   });
   </script>
-  
-  <x-multipleinput maxcount="5" />
+
+  <h2>普通的</h2>
+  <x-multipleinput></x-multipleinput>
+
+  <h2>限制5个</h2>
+  <x-multipleinput maxcount="5"></x-multipleinput>
+
+  <h2>替换</h2>
+  <form>
+    <x-multipleinput>
+      <input type="url" required="required" placeholder="输入链接" />
+      <a class="x-multipleinput-add-button" href="javascript:void(0)">add</a>
+      <a class="x-multipleinput-remove-button" href="javascript:void(0)">remove</a>
+    </x-multipleinput>
+    <input type="submit" />
+  </form>
+
+  <h2>脚本添加</h2>
+  <script>
+    KISSY.use('components/multiple-input/index', function(S) {
+      var c = S.one('<x-multipleinput />');
+      c.appendTo(document.body);
+      window.c = c[0];
+      window.c.component.add();
+    });
+  </script>
 
 </body>
 </html>

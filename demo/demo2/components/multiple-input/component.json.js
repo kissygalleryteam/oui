@@ -5,13 +5,13 @@ KISSY.add(function() {
     "template-module": "components/multiple-input/template.mustache",
     "define1": ["defaultInput", "lastItem"],
     "define": ["addButton", "removeButton", "items"],
-    "options": ["maxCount"]
+    "options": ["maxCount", "required"]
   },
   "defaultInput": {
   	"selector": "input"
   },
   "addButton": {
-  	"selector": "button.add",
+  	"selector": ".x-multipleinput-add-button",
   	"bind": {
   		"click": "add"
   	}
@@ -23,7 +23,7 @@ KISSY.add(function() {
   	}
   },
   "removeButton": {
-  	"selector": "button.remove",
+  	"selector": ".x-multipleinput-remove-button",
   	"bind": {
   		"click": "remove($target)"
   	}
@@ -34,6 +34,10 @@ KISSY.add(function() {
   "maxCount": {
   	"defaultValue": -1,
   	"attribute": true
+  },
+  "required": {
+    "defalutValue": -1,
+    "attribute": true
   }
 }
 });

@@ -6,15 +6,33 @@ KISSY.add(function(S, oop, ui, json) {
 
 		__factory: json,
 
+		value: oop.property(function() {
+			var self = this;
+			var result = [];
+			self.get('items').forEach(function(item) {
+				result.push(S.one(item).val());
+			});
+			return result;
+		}),
+
+		onCreate: function() {
+			var self = this;
+			self.originInput = S.one(self.get('lastItem')).clone(true);
+		},
+
 		_createItem: function() {
 			var self = this;
-			var item = S.one('<div class="item"><input type="text" /><button class="remove">删除</button></div>');
+			var input = S.one(self.originInput).clone(true);
+			var removeButton = (S.one(self.temp).one('.x-multipleinput-remove-button') || S.one('<button class="x-multipleinput-remove-button">删除</button>')).clone(true);
+			var item = S.one('<div class="item"> </div>');
+			item.prepend(input);
+			item.append(removeButton);
 			return item[0];
 		},
 
 		add: function() {
 			var self = this;
-			if (self.get('items').length >= self.get('maxCount')) {
+			if (self.get('maxCount') >= 0 && self.get('items').length >= self.get('maxCount')) {
 				return;
 			}
 			var newItem = self._createItem();
@@ -33,6 +51,7 @@ KISSY.add(function(S, oop, ui, json) {
 			var self = this;
 			var input = event.target;
 			if (S.one(input).val()) {
+				event.preventDefault();
 				self.add();
 				self.get('lastItem').node.focus();
 			}
@@ -42,6 +61,7 @@ KISSY.add(function(S, oop, ui, json) {
 			var self = this;
 			var input = event.target;
 			if (!S.one(input).val()) {
+				event.preventDefault();
 				self.remove(input);
 				self.get('lastItem').node.focus();
 			}
