@@ -126,9 +126,11 @@ function wrap(node) {
     var cls;
     if (node.component) {
         return node.component;
-    } else {
+    } else if (node.nodeName) {
         cls = register.customTags[node.nodeName.toLowerCase()] || Component;
         return new cls(node);
+    } else {
+        return node;
     }
 }
 
