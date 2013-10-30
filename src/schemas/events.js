@@ -65,7 +65,7 @@ var SubEventHandler = new Class(Handler, {
                         }
                     });
                 });
-        }
+            }
         });
 
         subEvents.forEach(function(item) {
