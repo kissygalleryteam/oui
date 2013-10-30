@@ -113,11 +113,11 @@ function bootstrap(context) {
 	var originOne = Node.one;
 	S.one = Node.one = function(component) {
         var args = Array.prototype.slice.call(arguments, 0);
-        if (component.node) {
+        if (component && component.node) {
             args[0] = component.node;
         }
         var result = originOne.apply(this, args);
-        if (result[0]) {
+        if (result && result[0]) {
             wrap(result[0]);
         }
         return result;
