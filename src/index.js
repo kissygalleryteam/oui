@@ -100,6 +100,8 @@ var Component = new Class({
         self.handlers.forEach(function(handler) {
             handler.handleInstance(self);
         });
+
+        S.one(self.node).fire('created');
     }
 });
 
