@@ -10,13 +10,13 @@ var BindEventHandler = new Class(Handler, {
         if (!name.match(/^on(.*)/)) return;
         
         cls.meta.bindEvents.push({
-            name: RegExp.$1,
+            name: RegExp.$1.toLowerCase(),
             method: name
         });
     },
-    handleInitialize: function(component) {
+    handleInstance: function(component) {
         component.meta.bindEvents.forEach(function(item) {
-            component.node.on(item.name, component[item.method].bind(component));
+            S.one(component.node).on(item.name, component[item.method].bind(component));
         });
     }
 });
@@ -29,12 +29,12 @@ var SubEventHandler = new Class(Handler, {
         if (name.match(/^(.+)_on(.+)$/)) {
             cls.meta.subEvents.push({
                 sub: RegExp.$1,
-                name: RegExp.$2,
+                name: RegExp.$2.toLowerCase(),
                 method: name
             });
         }
     },
-    handleInitialize: function(component) {
+    handleInstance: function(component) {
         var meta = component.meta;
         var subEvents = [].concat(component.meta.subEvents);
         var defines = [].concat(meta.define || []).concat(meta.define1 || []).concat(meta.parent || []);
@@ -65,7 +65,7 @@ var SubEventHandler = new Class(Handler, {
                         }
                     });
                 });
-        }
+            }
         });
 
         subEvents.forEach(function(item) {
