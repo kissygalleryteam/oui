@@ -1,22 +1,34 @@
 describe('register', function() {
 
+	it('create', function() {
+		var A = new Class(ui.Component, {
+			meta: {
+				tag: 'mytag'
+			},
+			m: function() {
+				return 1;
+			}
+		});
+
+		var node = S.one('<x-mytag />');
+		assert.equal(node[0].component.m(), 1);
+	});
+
 	it('bootstrapped', function() {
-		var inited = false;
 		var A = new Class(ui.Component, {
 			meta: {
 				namcespace: 'x',
 				tag: 'mytag'
 			},
-			initialize: function(node) {
-				oop.parent(this, node);
-				inited = true;
+			m: function() {
+				return 1;
 			}
 		});
 
 		var context = S.one('<div><x-mytag></x-mytag></div>');
 		ui.bootstrap(context);
 
-		assert.equal(inited, 1);
+		assert.equal(S.one('x-mytag', context)[0].component.m(), 1);
 	});
 
 	it('namespace', function() {
@@ -39,6 +51,20 @@ describe('register', function() {
 		assert.ok(context.one('.mytag')[0].component);
 		assert.ok(context.one('.mytag2')[0].component);
 		assert.ok(!context.one('.mytag3')[0].component);
+	});
+
+	it('base tag', function() {
+
+		var A = new Class(ui.Component, {
+			meta: {
+				baseTag: 'form',
+				tag: 'mytag'
+			}
+		});
+
+		var context = S.one('<div><x-mytag class="mytag" /></div>');
+		ui.bootstrap(context);
+
 	});
 
 });

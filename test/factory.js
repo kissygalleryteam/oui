@@ -48,8 +48,8 @@ describe('factory', function() {
 		var a = new A(S.one('<div><span class="test1"></span></div>'));
 		var b = new B(S.one('<div><span class="test2"></span></div>'));
 
-		assert.equal(a.get('test')[0].className, 'test1');
-		assert.equal(b.get('test')[0].className, 'test2');
+		assert.equal(a.get('test').node.className, 'test1');
+		assert.equal(b.get('test').node.className, 'test2');
 
 	});
 

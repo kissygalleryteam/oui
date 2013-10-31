@@ -210,7 +210,7 @@ var DelayActivator = new Class({
             return _deactivate;
         } else {
             self.deactiveWait = wait;
-            return function() {
+            return function(f) {
                 func = f;
                 return _deactivate;
             }

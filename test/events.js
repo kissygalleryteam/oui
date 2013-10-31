@@ -5,13 +5,13 @@ describe('events', function() {
 		var node = S.one('<input />');
 
 		var A = new Class(ui.Component, {
-			onclick: function(event) {
+			onClick: function(event) {
 				eventCalled++;
 			}
 		});
 
 		var a = new A(node);
-		a.node.fire('click');
+		S.one(a).fire('click');
 		
 		assert.strictEqual(eventCalled, 1);
 	});
@@ -29,7 +29,7 @@ describe('events', function() {
 		});
 
 		var a = new A(node);
-		a.input.fire('click');
+		S.one(a.input).fire('click');
 
 		assert.strictEqual(eventCalled, 1);
 	});
