@@ -4,6 +4,7 @@ combined files :
 gallery/oui/0.2/handler
 gallery/oui/0.2/schemas/options
 gallery/oui/0.2/schemas/accessors
+gallery/oui/0.2/schemas/binding
 gallery/oui/0.2/schemas/promise
 gallery/oui/0.2/schemas/time
 gallery/oui/0.2/schemas/data
@@ -24,8 +25,8 @@ var Handler = new Class({
 	handleNew: function(metaclass, name, base, dict) {},
     handleMeta: function(meta) {},
     handleMember: function(cls, name, member) {},
-    handleInitialize: function(component) {},
-    handleInitialize2: function(cls) {}
+    handleInitialize: function(cls) {},
+    handleInstance: function(component) {}
 });
 
 return Handler;
@@ -90,7 +91,7 @@ var OptionsHandler = new oop.Class(Handler, {
 		if (self['__' + name]) {
 			value = type(self['__' + name]);
 		} else if (member.attribute) {
-			value = type(self.node.attr(name));
+			value = type(S.one(self.node).attr(name));
 		}
 		return value;
 	}
@@ -106,6 +107,8 @@ return {
 });
 KISSY.add('gallery/oui/0.2/schemas/accessors',function(S, oop, Handler) {
 
+var wrap;
+
 var Class = oop.Class;
 
 function define(selector, options) {
@@ -113,12 +116,17 @@ function define(selector, options) {
 
     var prop = oop.property(function() {
         var method = prop.method || 'all';
-        var node = this.node[method](prop.selector);
-        // TODO
-        if (method == 'one' && node && node[0].component) {
-            return node[0].component;
+        var node = S.one(this.node)[method](prop.selector);
+
+        if (method == 'parent' || method == 'one') {
+            return wrap(node[0]);
+        } else if (method == 'all') {
+            var arr = [];
+            node.each(function(item) {
+                arr.push(wrap(item[0]));
+            });
+            return arr;
         }
-        return node;
     });
     prop.uitype = arguments.callee;
     prop.selector = selector;
@@ -145,7 +153,110 @@ function parent(selector, options) {
 return {
 	define1: define1,
 	define: define,
-    parent: parent
+    parent: parent,
+    bind: function(func) {
+        wrap = func;
+    }
+}
+
+}, {
+	requires: ['gallery/oop/0.1/index', '../handler']
+});
+KISSY.add('gallery/oui/0.2/schemas/binding',function(S, oop, Handler) {
+
+function BindableObject(obj) {
+	this.__hooks__ = {};
+	this.__object__ = obj;
+}
+
+BindableObject.prototype.get = function(name) {
+	return this.__object__[name];
+};
+
+BindableObject.prototype.set = function(name, value) {
+	this.__object__[name] = value;
+	this.__hooks__[name].forEach(function(func) {
+		func(value);
+	});
+};
+
+BindableObject.register = function(model, name, hook) {
+	model.__hooks__[name].push(hook);
+	hook(model.__object__[name]);
+};
+
+BindableObject.defineProperty = function(model, key) {
+	model.__hooks__[key] = [];
+	Object.defineProperty(model, key, {
+		enumerable: true,
+		get: BindableObject.prototype.get.bind(this, key),
+		set: BindableObject.prototype.set.bind(this, key)
+	});
+};
+
+function Path(path) {
+	this.path = path;
+	this.parts = this.path.split('.');
+	this.name = this.parts.slice(-1);
+}
+
+Path.prototype.getTarget = function(model) {
+	var target = model;
+	this.parts.slice(0, -1).forEach(function(item) {
+		target = target[item];
+	});
+	return target;
+};
+
+Path.get = function(path) {
+	return new Path(path);
+}
+
+function wrap(obj) {
+	if (obj.__object__) {
+		return obj;
+	}
+
+	var model;
+	if (obj && typeof obj == 'object') {
+		model = new BindableObject(obj);
+		Object.keys(obj).forEach(function(key) {
+			var value = obj[key];
+			if (value && typeof value == 'object') {
+				model[key] = wrap(value);
+			} else {
+				BindableObject.defineProperty(model, key);
+			}
+		});
+	}
+	return model;
+}
+
+var BindingHandler = new oop.Class(Handler, {
+	handleNew: function(metaclass, name, base, dict) {
+		dict.bind = function(name, model, path) {
+			var self = this;
+			if (!model.__object__) {
+				throw new Error('model must be wraped');
+			}
+
+			path = Path.get(path);
+			var target = path.getTarget(model);
+
+			BindableObject.register(target, path.name, function(value) {
+				self.node[name] = value;
+			});
+
+			S.one(self.node).on('input', function() {
+				target.set(path.name, self.node.value);
+			});
+		}
+	}
+});
+
+return {
+	BindingHandler: BindingHandler,
+	wrap: wrap
 }
 
 }, {
@@ -393,7 +504,7 @@ var DelayActivator = new Class({
             return _deactivate;
         } else {
             self.deactiveWait = wait;
-            return function() {
+            return function(f) {
                 func = f;
                 return _deactivate;
             }
@@ -412,7 +523,7 @@ return {
 }, {
     requires: ['gallery/oop/0.1/index']
 });
-KISSY.add('gallery/oui/0.2/schemas/data',function(S, oop, Handler, promise, time, IO, Mustache) {
+KISSY.add('gallery/oui/0.2/schemas/data',function(S, oop, Handler, binding, promise, time, IO, Mustache) {
 
 var Class = oop.Class;
 
@@ -422,21 +533,30 @@ function capitalize(str) {
 
 function data(options) {
     options = options || {};
-    var prop = oop.property(function() {
-        return this['_' + prop.__name__];
-    }, function(value) {
-        this['_' + prop.__name__] = value;
-    });
+    var prop = {};
+    prop.__class__ = oop.property;
+    prop.writable = true;
     prop.uitype = arguments.callee;
     Object.keys(options).forEach(function(key) {
         prop[key] = options[key];
     });
+    if (prop.value) {
+        prop.value = binding.wrap(prop.value);
+    }
     return prop;
 }
 
 var DataHandler = new Class(Handler, {
     handleMember: function(cls, name, member) {
         if (!(member && member.__class__ == oop.property && member.uitype == data)) return;
+
+        var meta = cls.meta;
+        if (!meta.data) {
+            meta.data = [];
+        }
+        if (!~meta.data.indexOf(name)) {
+            meta.data.push(name);
+        }
 
         var methodName = 'load' + capitalize(name);
 
@@ -462,7 +582,19 @@ var DataHandler = new Class(Handler, {
         }
 
         cls.__setattr__(methodName, promise.promise(func));
+    },
+    handleInstance: function(component) {
+        ;(component.meta.data || []).forEach(function(name) {
+            var member = component.__properties__[name];
+            var model = component[name];
+            if (member.bind) {
+                Object.keys(member.bind).forEach(function(name) {
+                    component.bind(name, model, member.bind[name]);
+                });
+            }
+        });
     }
+
 });
 
 return {
@@ -471,7 +603,7 @@ return {
 }
 
 }, {
-    requires: ['gallery/oop/0.1/index', '../handler', './promise', './time', 'ajax', 'brix/gallery/mu/index']
+    requires: ['gallery/oop/0.1/index', '../handler', './binding', './promise', './time', 'ajax', 'brix/gallery/mu/index']
 });
 KISSY.add('gallery/oui/0.2/Handler',function(S, oop) {
 
@@ -481,8 +613,8 @@ var Handler = new Class({
 	handleNew: function(metaclass, name, base, dict) {},
     handleMeta: function(meta) {},
     handleMember: function(cls, name, member) {},
-    handleInitialize: function(component) {},
-    handleInitialize2: function(cls) {}
+    handleInitialize: function(cls) {},
+    handleInstance: function(component) {}
 });
 
 return Handler;
@@ -513,13 +645,14 @@ KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, 
 			var self = this;
 			var shadow, nodes, placehoders;
 			var template = self.getTemplate(component.meta);
+			var temp;
 			if (template) {
 				shadow = document.createDocumentFragment();
 				S.all(template).appendTo(shadow);
 				placeholders = S.all(shadow.querySelectorAll('content'));
 				placeholders.each(function(placeholder) {
 					var selector = placeholder.attr('select') || '*';
-					var targets = component.node.all(selector);
+					var targets = S.all(selector, component.node);
 					if (!targets.length) {
 						targets = placeholder.children();
 					}
@@ -527,8 +660,13 @@ KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, 
 				});
 			}
 			if (shadow) {
-				component.node.html('');
-				component.node.append(shadow);
+				temp = document.createDocumentFragment();
+				S.one(component).children().each(function(node) {
+					node.appendTo(temp);
+				});
+				component.temp = temp;
+				S.one(component).html('');
+				S.one(component).append(shadow);
 			}
 		},
 		handleNew: function(metaclass, name, base, dict) {
@@ -541,14 +679,14 @@ KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, 
 	        	if (point) {
 	        		dom.insertBefore(S.one(result), point);
 	        	} else {
-	        		this.node.append(result);
+	        		this.append(result);
 	        	}
 	        	callback();
 	        }
 
 	        dict.render = promise.promise(func);
 	    },
-		handleInitialize: function(component) {
+		handleInstance: function(component) {
 			var self = this;
 
 			self.renderShadow(component);
@@ -575,13 +713,13 @@ var BindEventHandler = new Class(Handler, {
         if (!name.match(/^on(.*)/)) return;
         
         cls.meta.bindEvents.push({
-            name: RegExp.$1,
+            name: RegExp.$1.toLowerCase(),
             method: name
         });
     },
-    handleInitialize: function(component) {
+    handleInstance: function(component) {
         component.meta.bindEvents.forEach(function(item) {
-            component.node.on(item.name, component[item.method].bind(component));
+            S.one(component.node).on(item.name, component[item.method].bind(component));
         });
     }
 });
@@ -594,12 +732,12 @@ var SubEventHandler = new Class(Handler, {
         if (name.match(/^(.+)_on(.+)$/)) {
             cls.meta.subEvents.push({
                 sub: RegExp.$1,
-                name: RegExp.$2,
+                name: RegExp.$2.toLowerCase(),
                 method: name
             });
         }
     },
-    handleInitialize: function(component) {
+    handleInstance: function(component) {
         var meta = component.meta;
         var subEvents = [].concat(component.meta.subEvents);
         var defines = [].concat(meta.define || []).concat(meta.define1 || []).concat(meta.parent || []);
@@ -630,7 +768,7 @@ var SubEventHandler = new Class(Handler, {
                         }
                     });
                 });
-        }
+            }
         });
 
         subEvents.forEach(function(item) {
@@ -671,7 +809,7 @@ KISSY.add('gallery/oui/0.2/schemas/register',function(S, oop, Handler) {
 	var customTags = {};
 
 	var RegisterHandler = new oop.Class(Handler, {
-		handleInitialize2: function(cls) {
+		handleInitialize: function(cls) {
 			if (cls.meta.tag) {
 				customTags[(cls.meta.namespace || 'x') + '-' + cls.meta.tag] = cls;
 			}
@@ -680,29 +818,40 @@ KISSY.add('gallery/oui/0.2/schemas/register',function(S, oop, Handler) {
 
 	function bootstrap(context) {
 	    Object.keys(customTags).forEach(function(tag) {
-	        var cls = customTags[tag];
 	        S.all(tag, context).each(function(node) {
-	        	var newNode;
-	        	var name = node.nodeName();
-	        	var baseTag = cls.meta.baseTag;
-	        	if (baseTag && baseTag != name) {
-	        		newNode = S.one('<' + baseTag + ' is="' + name + '" />');
-	        		S.each(node[0].attributes, function(attr) {
-	        			newNode.attr(attr.name, attr.value);
-	        		});
-	        		node.children().appendTo(newNode);
-	        		node.replaceWith(newNode);
-	        		node = newNode;
-	        	}
+	        	var tag = node.nodeName();
+	        	var cls = customTags[tag];
 	        	new cls(node);
 	        });
 	    });
 	}
 
+	/**
+	 * create a custom element
+	 */
+	function create(tagName) {
+		var cls = customTags[tagName];
+		if (!cls) {
+			throw new Error(tagName + ' not registed');
+		}
+		var meta = cls.meta;
+		var baseTag = meta.baseTag;
+		var tag = (meta.namespace || 'x') + '-' + meta.tag;
+		var node;
+		if (baseTag) {
+			node = S.one('<' + baseTag + 'is="' + tag + '" />')[0];
+		} else {
+			node = S.one('<' + tag + '/>')[0];
+		}
+		new cls(node);
+		return node;
+	}
+
 	return {
 		customTags: customTags,
 		RegisterHandler: RegisterHandler,
-		bootstrap: bootstrap
+		bootstrap: bootstrap,
+		create: create
 	};
 
 }, {
@@ -727,7 +876,7 @@ var FactoryHandler = new Class(Handler, {
 			this.handleFactory(cls, member);
 		}
 	},
-	handleInitialize: function(component) {
+	handleInstance: function(component) {
 		var options = component.__factory;
 		if (!options) return;
 
@@ -812,37 +961,32 @@ return {
 }, {
 	requires: ['gallery/oop/0.1/index', './promise']
 })
-KISSY.add('gallery/oui/0.2/index',function(S, event, oop, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard) {
-
-var schemas = {
-    options: options,
-    accessors: accessors,
-    data: dataSchema,
-    template: template,
-    events: events,
-    promise: promise,
-    register: register,
-    factory: factory,
-    time: time,
-    keyboard: keyboard
-}
+KISSY.add('gallery/oui/0.2/index',function(S, event, Node, oop, options, accessors, dataSchema, template, events, promise, register, factory, time, keyboard, binding) {
 
 var Class = oop.Class;
 
 var ComponentMeta = new Class(oop.Type, {
     __new__: function(metaclass, name, base, dict) {
         var meta = dict.meta || {};
-        var handlers;
+        var uses, handlers;
 
-        if (dict.uses) {
-            handlers = [];
-            dict.uses.forEach(function(Handler) {
-                handlers.push(new Handler());
-            });
-            dict.handlers = handlers;
-        } else {
-            handlers = base.handlers;
-        }
+        dict.__mixins__ = [EventTarget];
+
+        uses = dict.uses || base.uses || [
+            factory.FactoryHandler,
+            options.OptionsHandler,
+            events.BindEventHandler,
+            events.SubEventHandler,
+            dataSchema.DataHandler,
+            template.TemplateHandler,
+            register.RegisterHandler,
+            binding.BindingHandler
+        ];
+        handlers = [];
+        uses.forEach(function(Handler) {
+            handlers.push(new Handler());
+        });
+        dict.handlers = handlers;
 
         dict.meta = meta;
         dict.__constructed = false;
@@ -864,7 +1008,7 @@ var ComponentMeta = new Class(oop.Type, {
                 })
             });
             cls.handlers.forEach(function(handler) {
-                handler.handleInitialize2(cls);
+                handler.handleInitialize(cls);
             });
         }
     },
@@ -885,54 +1029,91 @@ function EventTarget() {
 EventTarget.prototype = event.Target;
 
 var Component = new Class({
-
     __metaclass__ : ComponentMeta,
+    initialize: function(node) {
+        var self = this;
 
-    __mixins__: [EventTarget],
-
-    uses: [
-        factory.FactoryHandler,
-        options.OptionsHandler,
-        events.BindEventHandler,
-        events.SubEventHandler,
-        dataSchema.DataHandler,
-        template.TemplateHandler,
-        register.RegisterHandler
-    ],
-
-    initialize : function(node) {
-        if (!node) {
-            throw new Error('bad argument, component must wrap a node');
-        }
-
-        var wrapped;
-
-        // compatible for kissy node
-        if (node.constructor == S.Node) {
-            wrapped = node;
-            node = node[0];
-        } else {
-            wrapped = S.one(node);
-        }
+    	var wrapped = Node(node);
+    	node = wrapped[0];
 
         if (node.component) {
-            throw new Error('node has already wraped');
+            if (node.component.__class__ === self.__class__) {
+                return node.component;
+            }
+            if (!(self instanceof node.component.__class__)) {
+                throw new Error('node has already wraped');
+            }
         }
 
-        this._node = node;
-        this.node = wrapped;
-        this._node.component = this;
+        var meta = self.meta;
+        var newNode;
+        if (meta.baseTag && meta.baseTag != node.nodeName.toLowerCase()) {
+            newNode = S.one('<' + meta.baseTag + ' is="' + meta.tag + '" />');
+            S.each(node.attributes, function(attr) {
+                newNode.attr(attr.name, attr.value);
+            });
+            wrapped.children().appendTo(newNode);
+            wrapped.replaceWith(newNode);
+            node = newNode[0];
+        }
 
-        this.handlers.forEach(function(handler) {
-            handler.handleInitialize(this);
-        }, this);
+        self.node = node;
+        self.node.component = self;
+
+        self.handlers.forEach(function(handler) {
+            handler.handleInstance(self);
+        });
+
+        S.one(self.node).fire('created');
     }
-
 });
 
 function bootstrap(context) {
-    schemas.register.bootstrap(context);
+    register.bootstrap(context);
 }
+
+(function() {
+	var originOne = Node.one;
+	S.one = Node.one = function(component) {
+        var args = Array.prototype.slice.call(arguments, 0);
+        if (component && component.node) {
+            args[0] = component.node;
+        }
+        var result = originOne.apply(this, args);
+        if (result && result[0]) {
+            wrap(result[0]);
+        }
+        return result;
+    }
+})();
+
+function wrap(node) {
+    var cls;
+    if (node.component) {
+        return node.component;
+    } else if (node.nodeName) {
+        cls = register.customTags[node.nodeName.toLowerCase()] || Component;
+        return new cls(node);
+    } else {
+        return node;
+    }
+}
+
+var schemas = {
+    options: options,
+    accessors: accessors,
+    data: dataSchema,
+    template: template,
+    events: events,
+    promise: promise,
+    register: register,
+    factory: factory,
+    time: time,
+    keyboard: keyboard,
+    binding: binding
+}
+
+accessors.bind(wrap);
 
 var exports = {};
 
@@ -940,15 +1121,18 @@ exports.Component = Component;
 exports.option = options.option;
 exports.define1 = accessors.define1;
 exports.define = accessors.define;
+exports.parent = accessors.parent;
 exports.data = dataSchema.data;
 exports.schemas = schemas;
 exports.bootstrap = bootstrap;
+exports.wrap = wrap;
 
 return exports;
 
 }, {
 	requires: [
     'event',
+    'node',
     'gallery/oop/0.1/index',
     './schemas/options',
     './schemas/accessors',
@@ -959,6 +1143,7 @@ return exports;
     './schemas/register',
     './schemas/factory',
     './schemas/time',
-    './schemas/keyboard'
+    './schemas/keyboard',
+    './schemas/binding'
     ]
 });
