@@ -75,7 +75,11 @@ var OptionsHandler = new oop.Class(Handler, {
 			if (value && typeof value == 'object') {
 				Object.keys(value).forEach(function(subName) {
 					var subValue = value[subName];
-					member[subName] = subValue;
+					if (subName == 'value' && member.writable) {
+						self[name] = subValue;
+					} else {
+						member[subName] = subValue;
+					}
 				});
 			} else {
 				self['__' + name] = value;
@@ -624,6 +628,17 @@ return Handler;
 })
 KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, dom, Mustache) {
 
+	function getTemplateData(component) {
+		var data = {};
+		;(component.meta.data || []).forEach(function(name) {
+			data[name] = component.get(name);
+		});
+		;(component.meta.options || []).forEach(function(name) {
+			data[name] = component.get(name);
+		});
+		return data;
+	}
+
 	var TemplateHandler = new oop.Class(Handler, {
 		getTemplate: function(options) {
 			options = options || {};
@@ -646,12 +661,14 @@ KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, 
 			var shadow, nodes, placehoders;
 			var template = self.getTemplate(component.meta);
 			var temp;
+			var result;
 			if (template) {
 				shadow = document.createDocumentFragment();
-				S.all(template).appendTo(shadow);
+	        	result = Mustache.to_html(template, getTemplateData(component));
+				S.all(result).appendTo(shadow);
 				placeholders = S.all(shadow.querySelectorAll('content'));
 				placeholders.each(function(placeholder) {
-					var selector = placeholder.attr('select') || '*';
+					var selector = '> ' + (placeholder.attr('select') || '*');
 					var targets = S.all(selector, component.node);
 					if (!targets.length) {
 						targets = placeholder.children();

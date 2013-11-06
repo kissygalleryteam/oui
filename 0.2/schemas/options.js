@@ -39,7 +39,11 @@ var OptionsHandler = new oop.Class(Handler, {
 			if (value && typeof value == 'object') {
 				Object.keys(value).forEach(function(subName) {
 					var subValue = value[subName];
-					member[subName] = subValue;
+					if (subName == 'value' && member.writable) {
+						self[name] = subValue;
+					} else {
+						member[subName] = subValue;
+					}
 				});
 			} else {
 				self['__' + name] = value;
