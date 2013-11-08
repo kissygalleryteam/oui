@@ -101,7 +101,7 @@ var Component = new Class({
             handler.handleInstance(self);
         });
 
-        S.one(self.node).fire('created');
+        S.one(self.node).fireHandler('created');
     }
 });
 
