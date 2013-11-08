@@ -353,10 +353,16 @@ function debounce(wait, immediate) {
     };
 };
 
-function interval(time) {
+function interval(time, immediate) {
     return function(func) {
         var member = function() {
-            member.timer = setInterval(S.bind(func, this), member.time);
+            var obj = this, args = arguments;
+            if (immediate) {
+                func.apply(this, arguments);
+            }
+            member.timer = setInterval(function() {
+                func.apply(obj, args);
+            }, member.time);
         };
         member.time = time;
         member.stop = function() {
@@ -1081,7 +1087,7 @@ var Component = new Class({
             handler.handleInstance(self);
         });
 
-        S.one(self.node).fire('created');
+        S.one(self.node).fireHandler('created');
     }
 });
 
