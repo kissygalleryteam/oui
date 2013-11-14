@@ -61,6 +61,7 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 					shadowRoot.appendChild(e);
 				}
 				component.shadowRoot = shadowRoot;
+				S.one(component).addClass('oui-loaded');
 				component.node.appendChild(shadowRoot);
 			}
 		},
