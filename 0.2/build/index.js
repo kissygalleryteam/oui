@@ -695,6 +695,7 @@ KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, 
 					shadowRoot.appendChild(e);
 				}
 				component.shadowRoot = shadowRoot;
+				S.one(component).addClass('oui-loaded');
 				component.node.appendChild(shadowRoot);
 			}
 		},
