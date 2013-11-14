@@ -672,7 +672,7 @@ KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, 
 				shadow = document.createDocumentFragment();
 	        	result = Mustache.to_html(template, getTemplateData(component));
 				S.all(result).appendTo(shadow);
-				placeholders = S.all(shadow.querySelectorAll('content'));
+				placeholders = S.all('content', shadow);
 				placeholders.each(function(placeholder) {
 					var selector = '> ' + (placeholder.attr('select') || '*');
 					var targets = S.all(selector, component.node);
@@ -689,7 +689,7 @@ KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, 
 				});
 				component.temp = temp;
 				S.one(component).html('');
-				S.one(component).append(shadow);
+				component.node.appendChild(shadow);
 			}
 		},
 		handleNew: function(metaclass, name, base, dict) {
@@ -833,8 +833,10 @@ KISSY.add('gallery/oui/0.2/schemas/register',function(S, oop, Handler) {
 
 	var RegisterHandler = new oop.Class(Handler, {
 		handleInitialize: function(cls) {
+			var tag = (cls.meta.namespace || 'x') + '-' + cls.meta.tag;
 			if (cls.meta.tag) {
-				customTags[(cls.meta.namespace || 'x') + '-' + cls.meta.tag] = cls;
+				customTags[tag] = cls;
+				document.createElement(tag);
 			}
 		}
 	});
@@ -1170,5 +1172,3 @@ return exports;
     './schemas/binding'
     ]
 });
-
-
