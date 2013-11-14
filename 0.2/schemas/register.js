@@ -4,8 +4,10 @@ KISSY.add(function(S, oop, Handler) {
 
 	var RegisterHandler = new oop.Class(Handler, {
 		handleInitialize: function(cls) {
+			var tag = (cls.meta.namespace || 'x') + '-' + cls.meta.tag;
 			if (cls.meta.tag) {
-				customTags[(cls.meta.namespace || 'x') + '-' + cls.meta.tag] = cls;
+				customTags[tag] = cls;
+				document.createElement(tag);
 			}
 		}
 	});
