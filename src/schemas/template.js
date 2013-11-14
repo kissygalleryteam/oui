@@ -35,7 +35,7 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 			var temp;
 			var result;
 			if (template) {
-				shadow = document.createDocumentFragment();
+				shadow = document.createElement('div');
 	        	result = Mustache.to_html(template, getTemplateData(component));
 				S.all(result).appendTo(shadow);
 				placeholders = S.all('content', shadow);
@@ -55,7 +55,13 @@ KISSY.add(function(S, oop, promise, Handler, dom, Mustache) {
 				});
 				component.temp = temp;
 				S.one(component).html('');
-				component.node.appendChild(shadow);
+				var shadowRoot = document.createDocumentFragment();
+				var e;
+				while (e = shadow.firstChild) {
+					shadowRoot.appendChild(e);
+				}
+				component.shadowRoot = shadowRoot;
+				component.node.appendChild(shadowRoot);
 			}
 		},
 		handleNew: function(metaclass, name, base, dict) {
