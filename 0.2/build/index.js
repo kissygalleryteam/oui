@@ -662,41 +662,38 @@ KISSY.add('gallery/oui/0.2/schemas/template',function(S, oop, promise, Handler, 
 		getRenderPoint: function(options) {
 	        return S.one(options['template-from']);
 		},
+		getShadowRoot: function(component, template) {
+        	var result = S.one('<div>' + Mustache.to_html(template, getTemplateData(component)) + '</div>')[0];
+			var placeholders = S.all('content', result);
+			placeholders.each(function(placeholder) {
+				var selector = '> ' + (placeholder.attr('select') || '*');
+				var targets = S.all(selector, component.node);
+				if (!targets.length) {
+					targets = placeholder.children();
+				}
+				placeholder.replaceWith(targets);
+			});
+			var shadow = document.createDocumentFragment();
+			var child;
+			while (child = result.firstChild) {
+				shadow.appendChild(child);
+			}
+			return shadow;
+		},
 		renderShadow: function(component) {
 			var self = this;
-			var shadow, nodes, placehoders;
 			var template = self.getTemplate(component.meta);
-			var temp;
-			var result;
+			var shadow, temp, child;
 			if (template) {
-				shadow = document.createElement('div');
-	        	result = Mustache.to_html(template, getTemplateData(component));
-				S.all(result).appendTo(shadow);
-				placeholders = S.all('content', shadow);
-				placeholders.each(function(placeholder) {
-					var selector = '> ' + (placeholder.attr('select') || '*');
-					var targets = S.all(selector, component.node);
-					if (!targets.length) {
-						targets = placeholder.children();
-					}
-					placeholder.replaceWith(targets);
-				});
-			}
-			if (shadow) {
+				shadow = self.getShadowRoot(component, template);
 				temp = document.createDocumentFragment();
-				S.one(component).children().each(function(node) {
-					node.appendTo(temp);
-				});
-				component.temp = temp;
-				S.one(component).html('');
-				var shadowRoot = document.createDocumentFragment();
-				var e;
-				while (e = shadow.firstChild) {
-					shadowRoot.appendChild(e);
+				while (child = component.node.firstChild) {
+					temp.appendChild(child);
 				}
-				component.shadowRoot = shadowRoot;
-				S.one(component).addClass('oui-loaded');
-				component.node.appendChild(shadowRoot);
+				component.temp = temp;
+				component.shadowRoot = shadow;
+				component.node.appendChild(shadow);
+				S.one(component.node).addClass('oui-loaded');
 			}
 		},
 		handleNew: function(metaclass, name, base, dict) {
